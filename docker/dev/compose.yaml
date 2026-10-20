@@ -1,3 +1,6 @@
+x-ros-environment: &ros-environment
+  RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+
 services:
   motion_container:
     image: lerobot-ros2-motion-dev:jazzy
@@ -10,16 +13,20 @@ services:
     command: /bin/bash
     tty: true
     ipc: host
+
     volumes:
       - ../../motion_ws:/app
       - ../../packages/lemotion:/app/src/lemotion
       - ../../packages/lemodel:/app/src/lemodel
       - ../../packages/lebringup:/app/src/lebringup
+      - ../deploy/config:/config:ro
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev:/dev
+
     environment:
+      <<: *ros-environment
       QT_X11_NO_MITSHM: 1
-      DISPLAY: $DISPLAY
+      DISPLAY: ${DISPLAY}
 
   vision_container:
     image: lerobot-ros2-vision-dev:jazzy
@@ -32,11 +39,15 @@ services:
     command: /bin/bash
     tty: true
     ipc: host
+
     volumes:
       - ../../vision_ws:/app
       - ../../packages/levision:/app/src/levision
+      - ../deploy/config:/config:ro
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /dev:/dev
+
     environment:
+      <<: *ros-environment
       QT_X11_NO_MITSHM: 1
-      DISPLAY: $DISPLAY
+      DISPLAY: ${DISPLAY}

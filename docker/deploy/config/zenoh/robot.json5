@@ -1,0 +1,23 @@
+{
+  mode: "router",
+
+  listen: {
+    endpoints: ["tcp/0.0.0.0:7447"]
+  },
+
+  plugins: {
+    ros2dds: {
+      nodename: "lerobot_robot_bridge",
+
+      deny: {
+        publishers: [
+          "/follower/image_raw"
+        ]
+      },
+
+      pub_max_frequencies: [
+        ".*/camera_info=10"
+      ]
+    }
+  }
+}
