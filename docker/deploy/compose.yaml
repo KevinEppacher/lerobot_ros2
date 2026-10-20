@@ -66,7 +66,7 @@ services:
         "gui:=false"
       ]
 
-  so101-follower-camera-bringup:
+  so101-follower-wrist-camera-bringup:
     image: ghcr.io/kevineppacher/lerobot-ros2-vision:jazzy
     network_mode: host
     devices:
@@ -80,7 +80,31 @@ services:
         "ros2",
         "launch",
         "lerobot_vision_bringup",
-        "follower_camera_bringup.launch.py",
+        "camera_bringup.launch.py",
+        "namespace:=follower",
+        "camera_name:=wrist_camera",
+        "config_file:=follower_wrist_camera.yaml",
+        "video_device:=/dev/video0"
+      ]
+
+  so101-follower-front-camera-bringup:
+    image: ghcr.io/kevineppacher/lerobot-ros2-vision:jazzy
+    network_mode: host
+    devices:
+      - ${FRONT_VIDEO_DEVICE}:/dev/video0
+    volumes:
+      - ./config:/config:ro
+    environment:
+      <<: *ros-environment
+    command:
+      [
+        "ros2",
+        "launch",
+        "lerobot_vision_bringup",
+        "camera_bringup.launch.py",
+        "namespace:=follower",
+        "camera_name:=front_camera",
+        "config_file:=follower_front_camera.yaml",
         "video_device:=/dev/video0"
       ]
 

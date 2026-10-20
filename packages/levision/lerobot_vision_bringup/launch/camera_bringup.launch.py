@@ -8,11 +8,10 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     # ---------------------- Paths ------------------------------#
-    
-    follower_camera_config_path = os.path.join(
+
+    camera_config_dir = os.path.join(
         get_package_share_directory("lerobot_vision_bringup"),
         "config",
-        "follower_wrist_camera.yaml",
     )
 
     # ---------------------- Arguments ------------------------------#
@@ -20,19 +19,33 @@ def generate_launch_description():
     namespace_arg = DeclareLaunchArgument(
         "namespace",
         default_value="follower",
-        description="Namespace for the robot",
+        description="Namespace for the camera",
     )
-    
+
+    camera_name_arg = DeclareLaunchArgument(
+        "camera_name",
+        default_value="wrist_camera",
+        description="Name of the camera node",
+    )
+
+    config_file_arg = DeclareLaunchArgument(
+        "config_file",
+        default_value="follower_wrist_camera.yaml",
+        description="Camera configuration file",
+    )
+
     video_device_arg = DeclareLaunchArgument(
         "video_device",
         default_value="/dev/video0",
         description=(
-            "Video device for the follower wrist camera. "
+            "Video device for the camera. "
             "List devices with 'v4l2-ctl --list-devices'."
         ),
     )
 
     namespace = LaunchConfiguration("namespace")
+    camera_name = LaunchConfiguration("camera_name")
+    config_file = LaunchConfiguration("config_file")
     video_device = LaunchConfiguration("video_device")
 
     # ---------------------- Nodes ------------------------------#
@@ -40,11 +53,11 @@ def generate_launch_description():
     cam_node = Node(
         package="usb_cam",
         executable="usb_cam_node_exe",
-        name="wrist_camera",
+        name=camera_name,
         namespace=namespace,
         output="screen",
         parameters=[
-            follower_camera_config_path,
+            [camera_config_dir, "/", config_file],
             {"video_device": video_device}
         ],
     )
@@ -53,6 +66,8 @@ def generate_launch_description():
 
     ld = LaunchDescription()
     ld.add_action(namespace_arg)
+    ld.add_action(camera_name_arg)
+    ld.add_action(config_file_arg)
     ld.add_action(video_device_arg)
     ld.add_action(cam_node)
     return ld

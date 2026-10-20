@@ -1,0 +1,8 @@
+/**/front_camera:
+  ros__parameters:
+    camera_name: "follower_front_camera"
+    frame_id: "follower_front_camera_optical_frame"
+    image_width: 640
+    image_height: 480
+    framerate: 30.0
+    pixel_format: "yuyv2rgb"

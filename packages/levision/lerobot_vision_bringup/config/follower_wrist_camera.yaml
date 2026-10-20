@@ -1,8 +1,8 @@
- /**/wrist_camera:
+/**/wrist_camera:
   ros__parameters:
     camera_name: "follower_wrist_camera"
     frame_id: "follower_wrist_camera_mount_link"
-    image_width: 1280
-    image_height: 720
+    image_width: 640
+    image_height: 480
     framerate: 30.0
-    pixel_format: "mjpeg2rgb"
+    pixel_format: "yuyv2rgb"
