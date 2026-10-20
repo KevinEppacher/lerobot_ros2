@@ -1,0 +1,13 @@
+{
+  mode: "client",
+
+  connect: {
+    endpoints: ["tcp/<clients-ip-address>:7447"]
+  },
+
+  plugins: {
+    ros2dds: {
+      nodename: "lerobot_workstation_bridge"
+    }
+  }
+}

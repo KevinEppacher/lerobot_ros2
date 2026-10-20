@@ -1,3 +1,6 @@
+x-ros-environment: &ros-environment
+  RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+
 services:
   so101-leader-follower-bringup:
     image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
@@ -8,7 +11,7 @@ services:
     volumes:
       - ./config:/config:ro
     environment:
-      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      <<: *ros-environment
     command:
       [
         "ros2",
@@ -17,8 +20,8 @@ services:
         "so101_leader_follower_bringup.launch.xml",
         "leader_port:=/dev/so101_leader",
         "follower_port:=/dev/so101_follower",
-        "leader_calibration_path:=/config/leader_example_calibration.yaml",
-        "follower_calibration_path:=/config/follower_example_calibration.yaml",
+        "leader_calibration_path:=/config/calibration/leader_example_calibration.yaml",
+        "follower_calibration_path:=/config/calibration/follower_example_calibration.yaml",
         "gui:=false"
       ]
 
@@ -30,7 +33,7 @@ services:
     volumes:
       - ./config:/config:ro
     environment:
-      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      <<: *ros-environment
     command:
       [
         "ros2",
@@ -38,7 +41,7 @@ services:
         "lerobot_bringup",
         "so101_leader_bringup.launch.py",
         "port:=/dev/so101_leader",
-        "calibration_path:=/config/leader_example_calibration.yaml",
+        "calibration_path:=/config/calibration/leader_example_calibration.yaml",
         "gui:=false"
       ]
 
@@ -51,7 +54,7 @@ services:
     volumes:
       - ./config:/config:ro
     environment:
-      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      <<: *ros-environment
     command:
       [
         "ros2",
@@ -59,7 +62,7 @@ services:
         "lerobot_bringup",
         "so101_follower_bringup.launch.py",
         "port:=/dev/so101_follower",
-        "calibration_path:=/config/follower_example_calibration.yaml",
+        "calibration_path:=/config/calibration/follower_example_calibration.yaml",
         "gui:=false"
       ]
 
@@ -68,8 +71,10 @@ services:
     network_mode: host
     devices:
       - ${FOLLOWER_VIDEO_DEVICE}:/dev/video0
+    volumes:
+      - ./config:/config:ro
     environment:
-      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      <<: *ros-environment
     command:
       [
         "ros2",
@@ -90,8 +95,10 @@ services:
   lerobot-teleop:
     image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
     network_mode: host
+    volumes:
+      - ./config:/config:ro
     environment:
-      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      <<: *ros-environment
     command:
       [
         "ros2",
@@ -191,3 +198,35 @@ services:
     devices:
       - ${FOLLOWER_PORT}:/dev/hiwonder
     command: ["lerobot-torque-mode", "/dev/hiwonder"]
+
+  workstation_zenoh_bridge:
+    profiles: ["workstation"]
+    image: eclipse/zenoh-bridge-ros2dds:latest
+    network_mode: host
+    restart: unless-stopped
+
+    environment:
+      ROS_DISTRO: jazzy
+      CYCLONEDDS_URI: file:///config/cyclonedds/cyclonedds.xml
+
+    volumes:
+      - ./config:/config:ro
+
+    command:
+      ["-c", "/config/zenoh/workstation.json5"]
+
+  robot_zenoh_bridge:
+    profiles: ["robot"]
+    image: eclipse/zenoh-bridge-ros2dds:latest
+    container_name: robot-zenoh-bridge-ros2dds
+    network_mode: host
+    restart: unless-stopped
+
+    environment:
+      ROS_DISTRO: jazzy
+      CYCLONEDDS_URI: file:///config/cyclonedds/cyclonedds.xml
+
+    volumes:
+      - ./config:/config:ro
+
+    command: ["-c", "/config/zenoh/robot.json5"]
