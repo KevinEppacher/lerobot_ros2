@@ -41,6 +41,10 @@ RUN sudo apt update && sudo apt install -y \
 RUN sudo apt update && sudo apt install -y \
     ros-${ROS_DISTRO}-usb-cam
 
+# Image tools for viewing compressed image topics
+RUN sudo apt update && sudo apt install -y \
+    ros-${ROS_DISTRO}-image-view
+
 ########################################################
 # End Custom installations
 ########################################################
