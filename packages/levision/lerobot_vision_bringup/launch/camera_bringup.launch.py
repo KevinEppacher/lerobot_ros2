@@ -53,8 +53,8 @@ def generate_launch_description():
     cam_node = Node(
         package="usb_cam",
         executable="usb_cam_node_exe",
-        name=camera_name,
-        namespace=namespace,
+        name="camera",
+        namespace=[namespace, "/", camera_name],
         output="screen",
         parameters=[
             [camera_config_dir, "/", config_file],
