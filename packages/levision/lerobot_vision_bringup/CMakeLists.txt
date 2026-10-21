@@ -35,6 +35,13 @@ install(
     DESTINATION bin
 )
 
+# Install Bash completion
+install(
+  FILES config/bash_completion/lerobot-list-cameras.bash
+  DESTINATION share/bash-completion/completions
+  RENAME lerobot-list-cameras
+)
+
 ############################################################
 # Finalization
 ############################################################
