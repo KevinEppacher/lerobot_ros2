@@ -1,79 +1,327 @@
 #!/usr/bin/env python3
 
+# Copyright 2026 Kevin Eppacher
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""List V4L2 camera interfaces and their stable USB device paths."""
+
+import argparse
+import ctypes
+import fcntl
 import glob
 import os
+import re
+import shutil
 import subprocess
+import sys
 
-def run_v4l2(device, *args):
+from pathlib import Path
+from typing import Literal, TypedDict
+
+
+DeviceType = Literal["rgb", "rgbd", "meta", "unknown"]
+
+FILTER_TYPES = ("rgb", "rgbd", "meta")
+
+RGB_FORMATS = {
+    "YUYV",
+    "UYVY",
+    "MJPG",
+    "JPEG",
+    "RGB3",
+    "BGR3",
+    "NV12",
+    "YU12",
+}
+
+DEPTH_FORMATS = {
+    "Z16",
+    "INZI",
+    "Z16H",
+}
+
+IR_FORMATS = {
+    "Y10",
+    "Y12",
+    "GREY",
+    "Y16",
+}
+
+VIDIOC_QUERYCAP = 0x80685600
+
+V4L2_CAP_META_CAPTURE = 0x00800000
+V4L2_CAP_DEVICE_CAPS = 0x80000000
+
+
+class V4L2Capability(ctypes.Structure):
+    """Linux v4l2_capability structure."""
+
+    _fields_ = [
+        ("driver", ctypes.c_uint8 * 16),
+        ("card", ctypes.c_uint8 * 32),
+        ("bus_info", ctypes.c_uint8 * 32),
+        ("version", ctypes.c_uint32),
+        ("capabilities", ctypes.c_uint32),
+        ("device_caps", ctypes.c_uint32),
+        ("reserved", ctypes.c_uint32 * 3),
+    ]
+
+
+class CameraInfo(TypedDict):
+    """Information about a V4L2 camera interface."""
+
+    device: str
+    name: str
+    formats: list[str]
+    device_type: DeviceType
+    stable_path: str | None
+    physical_id: str
+
+
+def run_v4l2(device: str, *args: str) -> str:
+    """Execute a v4l2-ctl command."""
     result = subprocess.run(
         ["v4l2-ctl", "--device", device, *args],
         capture_output=True,
         text=True,
         check=False,
     )
-    return result.stdout
+
+    return result.stdout if result.returncode == 0 else ""
 
 
-def get_device_name(device : str) -> str:
+def get_device_name(device: str) -> str:
+    """Return the camera name reported by V4L2."""
     info = run_v4l2(device, "--all")
+
     for line in info.splitlines():
         if "Card type" in line:
             return line.split(":", 1)[1].strip()
+
     return "Unknown camera"
 
 
-def is_video_capture_device(device : str) -> bool:
-    formats = run_v4l2(device, "--list-formats-ext")
-    return bool(formats.strip())
+def get_supported_formats(device: str) -> list[str]:
+    """Return supported V4L2 pixel formats."""
+    output = run_v4l2(device, "--list-formats-ext")
+
+    return re.findall(
+        r"\[\d+\]:\s+'([^']+)'",
+        output,
+    )
 
 
-def get_stable_path(device : str) -> str | None:
-    for path in glob.glob("/dev/v4l/by-id/*"):
-        if os.path.realpath(path) == device:
+def is_metadata_device(device: str) -> bool:
+    """Check whether a V4L2 node supports metadata capture."""
+    capability = V4L2Capability()
+
+    try:
+        with open(device, "rb", buffering=0) as video_device:
+            fcntl.ioctl(
+                video_device.fileno(),
+                VIDIOC_QUERYCAP,
+                capability,
+            )
+    except OSError:
+        return False
+
+    caps = (
+        capability.device_caps
+        if capability.capabilities & V4L2_CAP_DEVICE_CAPS
+        else capability.capabilities
+    )
+
+    return bool(caps & V4L2_CAP_META_CAPTURE)
+
+
+def get_device_type(
+    device: str,
+    formats: list[str],
+) -> DeviceType:
+    """Classify a V4L2 interface."""
+    if is_metadata_device(device):
+        return "meta"
+
+    if not formats:
+        return "unknown"
+
+    format_set = {fmt.upper() for fmt in formats}
+
+    if format_set & (DEPTH_FORMATS | IR_FORMATS):
+        return "rgbd"
+
+    if format_set & RGB_FORMATS:
+        return "rgb"
+
+    return "unknown"
+
+
+def get_stable_path(device: str) -> str | None:
+    """Return the corresponding /dev/v4l/by-path symlink."""
+    real_device = os.path.realpath(device)
+
+    for path in sorted(glob.glob("/dev/v4l/by-path/*")):
+        if os.path.realpath(path) == real_device:
             return path
+
     return None
 
 
-def main() -> None:
-    devices = sorted(glob.glob("/dev/video*"))
+def get_physical_id(device: str) -> str:
+    """Identify the physical USB device through sysfs."""
+    sysfs_path = Path("/sys/class/video4linux") / Path(device).name / "device"
 
-    if not devices:
-        print("No cameras found.")
+    try:
+        current = sysfs_path.resolve(strict=True)
+    except OSError:
+        return os.path.realpath(device)
+
+    for parent in (current, *current.parents):
+        if (
+            (parent / "idVendor").is_file()
+            and (parent / "idProduct").is_file()
+        ):
+            return str(parent)
+
+    return str(current)
+
+
+def get_video_devices() -> list[str]:
+    """Return V4L2 video devices sorted numerically."""
+    return sorted(
+        glob.glob("/dev/video[0-9]*"),
+        key=lambda path: int(Path(path).name.removeprefix("video")),
+    )
+
+
+def get_type_label(device_type: DeviceType) -> str:
+    """Return a human-readable device type."""
+    labels: dict[DeviceType, str] = {
+        "rgb": "RGB",
+        "rgbd": "Depth / IR",
+        "meta": "Metadata",
+        "unknown": "Unknown",
+    }
+
+    return labels[device_type]
+
+
+def discover_cameras() -> list[CameraInfo]:
+    """Discover all available V4L2 interfaces."""
+    cameras: list[CameraInfo] = []
+
+    for device in get_video_devices():
+        formats = get_supported_formats(device)
+
+        cameras.append(
+            CameraInfo(
+                device=device,
+                name=get_device_name(device),
+                formats=formats,
+                device_type=get_device_type(device, formats),
+                stable_path=get_stable_path(device),
+                physical_id=get_physical_id(device),
+            )
+        )
+
+    return cameras
+
+
+def print_cameras(cameras: list[CameraInfo]) -> None:
+    """Print physical cameras."""
+    print("Available cameras:\n")
+
+    physical_cameras: dict[str, str] = {}
+
+    for camera in cameras:
+        physical_cameras.setdefault(
+            camera["physical_id"],
+            camera["name"],
+        )
+
+    for index, name in enumerate(physical_cameras.values(), start=1):
+        print(f"  [{index}] {name}")
+
+
+def print_interfaces(
+    cameras: list[CameraInfo],
+    device_filter: DeviceType | None,
+) -> None:
+    """Print V4L2 interfaces matching the requested filter."""
+    print("\nVideo interfaces:\n")
+
+    filtered_cameras = [
+        camera
+        for camera in cameras
+        if device_filter is None
+        or camera["device_type"] == device_filter
+    ]
+
+    if not filtered_cameras:
+        print("No matching video interfaces found.")
         return
 
-    print("Available video devices:\n")
+    for camera in filtered_cameras:
+        print(camera["device"])
+        print(f"  Camera: {camera['name']}")
+        print(f"  Type: {get_type_label(camera['device_type'])}")
 
-    capture_devices = []
+        if camera["formats"]:
+            formats_str = ", ".join(camera["formats"])
+            print(f"  Formats: {formats_str}")
 
-    for device in devices:
-        name = get_device_name(device)
-        stable_path = get_stable_path(device)
-        is_capture = is_video_capture_device(device)
+        stable_path = camera["stable_path"]
 
-        print(f"{device}")
-        print(f"  Camera: {name}")
-
-        if is_capture:
-            print("  Type: Video Capture")
-            capture_devices.append((device, stable_path))
-        else:
-            print("  Type: Metadata")
-
-        if stable_path:
+        if stable_path is not None:
             print(f"  Stable path: {stable_path}")
+        else:
+            print("  Stable path: Not available")
 
         print()
 
-    if capture_devices:
-        _, stable_path = capture_devices[0]
 
-        print("Recommended camera device:")
+def main() -> int:
+    """Entry point for the camera discovery CLI."""
+    parser = argparse.ArgumentParser(
+        description="List V4L2 camera interfaces and stable USB paths.",
+    )
 
-        if stable_path:
-            print(f"  {stable_path}")
-        else:
-            print(f"  {capture_devices[0][0]}")
+    parser.add_argument(
+        "type",
+        nargs="?",
+        choices=FILTER_TYPES,
+        default=None,
+        help="Filter interfaces by type: rgb, rgbd or meta.",
+    )
+
+    args = parser.parse_args()
+
+    if shutil.which("v4l2-ctl") is None:
+        print("Error: v4l2-ctl is not installed.", file=sys.stderr)
+        return 1
+
+    cameras = discover_cameras()
+
+    if not cameras:
+        print("No cameras found.")
+        return 0
+
+    print_cameras(cameras)
+    print_interfaces(cameras, args.type)
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

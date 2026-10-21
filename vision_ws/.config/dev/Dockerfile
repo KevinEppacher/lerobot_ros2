@@ -45,6 +45,10 @@ RUN sudo apt update && sudo apt install -y \
 RUN sudo apt update && sudo apt install -y \
     ros-${ROS_DISTRO}-image-view
 
+# Enable bash completion
+RUN sudo apt-get update && sudo apt-get install -y \
+    bash-completion
+
 ########################################################
 # End Custom installations
 ########################################################
@@ -55,5 +59,13 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 RUN echo "source install/setup.bash" >> ~/.bashrc
 RUN echo "cd /app && source .bash_aliases" >> ~/.bashrc
+# Enable Bash completion for lerobot-list-cameras
+# Enable Bash completion for lerobot-list-cameras
+RUN printf '%s\n' \
+    'COMPLETION_PREFIX=$(ros2 pkg prefix lerobot_vision_bringup 2>/dev/null)' \
+    'if [ -n "$COMPLETION_PREFIX" ] && [ -f "$COMPLETION_PREFIX/share/bash-completion/completions/lerobot-list-cameras" ]; then' \
+    '    source "$COMPLETION_PREFIX/share/bash-completion/completions/lerobot-list-cameras"' \
+    'fi' \
+    >> ~/.bashrc
 
 WORKDIR /app
