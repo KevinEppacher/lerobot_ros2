@@ -70,7 +70,9 @@ services:
     image: ghcr.io/kevineppacher/lerobot-ros2-vision:jazzy
     network_mode: host
     devices:
-      - ${FOLLOWER_VIDEO_DEVICE}:/dev/video0
+      - source: ${FOLLOWER_WRIST_VIDEO_DEVICE}
+        target: /dev/video0
+        permissions: rwm
     volumes:
       - ./config:/config:ro
     environment:
@@ -91,7 +93,9 @@ services:
     image: ghcr.io/kevineppacher/lerobot-ros2-vision:jazzy
     network_mode: host
     devices:
-      - ${FRONT_VIDEO_DEVICE}:/dev/video0
+      - source: ${FOLLOWER_FRONT_VIDEO_DEVICE}
+        target: /dev/video0
+        permissions: rwm
     volumes:
       - ./config:/config:ro
     environment:
@@ -114,7 +118,7 @@ services:
     privileged: true
     volumes:
       - /dev:/dev
-    command: ["lerobot-list-cameras"]
+    command: ["lerobot-list-cameras","rgb"]
 
   lerobot-teleop:
     image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
