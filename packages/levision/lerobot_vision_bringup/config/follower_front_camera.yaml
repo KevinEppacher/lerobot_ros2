@@ -1,4 +1,4 @@
-/**/front_camera:
+/**/camera:
   ros__parameters:
     camera_name: "follower_front_camera"
     frame_id: "follower_front_camera_optical_frame"

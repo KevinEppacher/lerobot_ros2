@@ -1,4 +1,4 @@
-/**/wrist_camera:
+/**/camera:
   ros__parameters:
     camera_name: "follower_wrist_camera"
     frame_id: "follower_wrist_camera_mount_link"
