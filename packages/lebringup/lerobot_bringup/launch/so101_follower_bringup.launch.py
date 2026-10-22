@@ -8,6 +8,7 @@ from launch.conditions import IfCondition
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import (
     PathJoinSubstitution,
 )
@@ -24,10 +25,14 @@ def generate_launch_description():
         "lerobot_bringup"
     )
 
-    xacro_file = os.path.join(
-        so101_description_share,
-        "urdf",
-        "so101.urdf.xacro",
+    description_package = LaunchConfiguration("description_package")
+    description_file = LaunchConfiguration("description_file")
+
+    xacro_file = PathJoinSubstitution(
+        [
+            FindPackageShare(description_package),
+            description_file,
+        ]
     )
 
     default_calibration_file = os.path.join(
@@ -75,6 +80,18 @@ def generate_launch_description():
         "gui",
         default_value="false",
         description="Enable RViz",
+    )
+
+    description_package_arg = DeclareLaunchArgument(
+        "description_package",
+        default_value="so101_description",
+        description="Package containing the robot description",
+    )
+
+    description_file_arg = DeclareLaunchArgument(
+        "description_file",
+        default_value="urdf/so101.urdf.xacro",
+        description="Relative path to the Xacro description",
     )
 
     port = LaunchConfiguration("port")
@@ -175,6 +192,8 @@ def generate_launch_description():
     ld.add_action(calibration_path_argument)
     ld.add_action(gui_arg)
     ld.add_action(namespace_arg)
+    ld.add_action(description_package_arg)
+    ld.add_action(description_file_arg)
     ld.add_action(robot_state_publisher)
     ld.add_action(controller_manager)
     ld.add_action(joint_state_broadcaster)
