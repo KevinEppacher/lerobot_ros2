@@ -45,6 +45,14 @@ RUN apt update && apt install -y \
     ros-${ROS_DISTRO}-joint-trajectory-controller \
     libyaml-cpp-dev
 
+# Install MoveIt packages for motion planning and manipulation
+RUN apt update && apt install -y \
+    ros-${ROS_DISTRO}-moveit \
+    ros-${ROS_DISTRO}-moveit-ros-planning \
+    ros-${ROS_DISTRO}-moveit-ros-planning-interface \
+    ros-${ROS_DISTRO}-moveit-ros-move-group \
+    ros-${ROS_DISTRO}-moveit-configs-utils
+
 ########################################################
 # End Custom installations
 ########################################################
