@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lerobot_workcell_bringup</name>
+  <version>0.1.0</version>
+  <description>
+    Launch and configuration package for the SO-101 robotic workcell,
+    integrating robot bringup with a configurable workcell description.
+  </description>
+  <maintainer email="kevin-eppacher@hotmail.de">Kevin Eppacher</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>lerobot_bringup</exec_depend>
+  <exec_depend>lerobot_workcell_description</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
