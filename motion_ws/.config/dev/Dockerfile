@@ -79,7 +79,8 @@ RUN sudo apt update && sudo apt install -y \
     ros-${ROS_DISTRO}-moveit-ros-planning \
     ros-${ROS_DISTRO}-moveit-ros-planning-interface \
     ros-${ROS_DISTRO}-moveit-ros-move-group \
-    ros-${ROS_DISTRO}-moveit-configs-utils
+    ros-${ROS_DISTRO}-moveit-configs-utils \
+    ros-${ROS_DISTRO}-joint-trajectory-controller
 
 ########################################################
 # End Custom installations
