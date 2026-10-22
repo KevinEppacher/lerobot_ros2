@@ -1,14 +1,17 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lerobot_workcell">
-    <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
 
-    <!-- Import lerobot_workcell urdf file -->
-    <xacro:include filename="$(find lerobot_workcell_description)/urdf/workcell.urdf.xacro" />
+    <xacro:arg name="port" default="/dev/ttyACM0"/>
 
-    <!-- Import control_xacro -->
-    <xacro:include filename="lerobot_workcell.ros2_control.xacro" />
+    <xacro:arg
+        name="calibration_file"
+        default="$(find so101_description)/config/leader_example_calibration.yaml"/>
 
+    <xacro:arg
+        name="robot_plugin"
+        default="hiwonder_lerobot_cpp/Leader"/>
 
-    <xacro:lerobot_workcell_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>
+    <xacro:include
+        filename="$(find lerobot_workcell_description)/urdf/workcell.urdf.xacro"/>
 
 </robot>
