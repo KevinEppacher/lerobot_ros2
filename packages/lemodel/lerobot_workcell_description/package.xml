@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lerobot_workcell_description</name>
+  <version>0.1.0</version>
+  <description>
+    Workcell description package combining the SO-101 robot with
+    environment models for visualization and collision checking.
+  </description>
+  <maintainer email="kevin-eppacher@hotmail.de">Kevin Eppacher</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>xacro</depend>
+  <exec_depend>so101_description</exec_depend>
+  <exec_depend>lerobot_environment_description</exec_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

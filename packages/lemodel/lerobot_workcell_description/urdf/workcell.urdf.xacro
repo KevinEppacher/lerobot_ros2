@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lerobot_workcell">
+  <!-- Arguments -->
+  <xacro:arg name="port" default="/dev/ttyACM0"/>
+  <xacro:arg name="calibration_file" default="$(find so101_description)/config/follower_example_calibration.yaml"/>
+  <xacro:arg name="prefix" default="follower_"/>
+  <xacro:arg name="robot_plugin" default="hiwonder_lerobot_cpp/Follower"/>
+  <!-- Robot -->
+  <xacro:include filename="$(find so101_description)/urdf/so101_macro.xacro"/>
+  <xacro:include filename="$(find so101_description)/urdf/so101_ros2_control.xacro"/>
+  <!-- Environment -->
+  <xacro:include filename="$(find lerobot_environment_description)/urdf/table.xacro"/>
+  <!-- World -->
+  <link name="world"/>
+  <!-- Table -->
+  <xacro:table prefix="" width="0.45" depth="0.52" thickness="0.04"/>
+  <!-- World to table -->
+  <joint name="world_to_table" type="fixed">
+    <parent link="world"/>
+    <child link="table_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+  <!-- SO-101 -->
+  <xacro:so101 prefix="$(arg prefix)"/>
+  <xacro:so101_ros2_control port="$(arg port)" calibration_file="$(arg calibration_file)" prefix="$(arg prefix)" robot_plugin="$(arg robot_plugin)"/>
+  <!-- Table to robot -->
+  <joint name="table_to_robot" type="fixed">
+    <parent link="table_link"/>
+    <child link="$(arg prefix)base_link"/>
+    <origin xyz="-0.2 0.0 0.02" rpy="0 0 0"/>
+  </joint>
+</robot>
