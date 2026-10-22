@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="lerobot_environment_description">
+  <xacro:include filename="$(find lerobot_environment_description)/urdf/table.xacro"/>
+  <link name="world"/>
+  <xacro:table prefix="" width="1.2" depth="0.8" thickness="0.04"/>
+  <joint name="world_to_table" type="fixed">
+    <parent link="world"/>
+    <child link="table_link"/>
+    <origin xyz="0.4 0.0 -0.02" rpy="0 0 0"/>
+  </joint>
+</robot>
