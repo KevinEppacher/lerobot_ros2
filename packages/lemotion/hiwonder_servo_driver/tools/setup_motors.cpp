@@ -38,11 +38,11 @@ struct Joint
 };
 
 constexpr std::array<Joint, 6> kJoints{{
-  {"shoulder_pan", 1},
-  {"shoulder_lift", 2},
-  {"elbow_flex", 3},
-  {"wrist_flex", 4},
-  {"wrist_roll", 5},
+  {"joint_1", 1},
+  {"joint_2", 2},
+  {"joint_3", 3},
+  {"joint_4", 4},
+  {"joint_5", 5},
   {"gripper", 6},
 }};
 

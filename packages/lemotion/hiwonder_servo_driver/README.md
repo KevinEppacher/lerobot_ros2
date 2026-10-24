@@ -181,11 +181,11 @@ The default configuration is:
 
 | ID | Joint |
 |---:|---|
-| 1 | `shoulder_pan` |
-| 2 | `shoulder_lift` |
-| 3 | `elbow_flex` |
-| 4 | `wrist_flex` |
-| 5 | `wrist_roll` |
+| 1 | `joint_1` |
+| 2 | `joint_2` |
+| 3 | `joint_3` |
+| 4 | `joint_4` |
+| 5 | `joint_5` |
 | 6 | `gripper` |
 
 ### Test servo movement

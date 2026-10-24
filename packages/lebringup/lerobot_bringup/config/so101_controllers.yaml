@@ -11,11 +11,11 @@
 /**/position_controller:
   ros__parameters:
     joints:
-      - shoulder_pan
-      - shoulder_lift
-      - elbow_flex
-      - wrist_flex
-      - wrist_roll
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
       - gripper
 
     interface_name: position
