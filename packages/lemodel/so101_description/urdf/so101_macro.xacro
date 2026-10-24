@@ -11,8 +11,14 @@
     <material name="sts3215">
       <color rgba="0.1 0.1 0.1 1.0"/>
     </material>
+    <link name="${prefix}base_link"></link>
+    <joint name="${prefix}base_joint" type="fixed">
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}link_1"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
     <!-- Link base -->
-    <link name="${prefix}base_link">
+    <link name="${prefix}link_1">
       <inertial>
         <origin xyz="0.0137179 -5.19711e-05 0.0334843" rpy="0 0 0"/>
         <mass value="0.147"/>
@@ -76,7 +82,7 @@
       </collision>
     </link>
     <!-- Link shoulder -->
-    <link name="${prefix}shoulder_link">
+    <link name="${prefix}link_2">
       <inertial>
         <origin xyz="-0.0307604 -1.66727e-05 -0.0252713" rpy="0 0 0"/>
         <mass value="0.100006"/>
@@ -126,7 +132,7 @@
       </collision>
     </link>
     <!-- Link upper_arm -->
-    <link name="${prefix}upper_arm_link">
+    <link name="${prefix}link_3">
       <inertial>
         <origin xyz="-0.0898471 -0.00838224 0.0184089" rpy="0 0 0"/>
         <mass value="0.103"/>
@@ -162,7 +168,7 @@
       </collision>
     </link>
     <!-- Link lower_arm -->
-    <link name="${prefix}lower_arm_link">
+    <link name="${prefix}link_4">
       <inertial>
         <origin xyz="-0.0980701 0.00324376 0.0182831" rpy="0 0 0"/>
         <mass value="0.104"/>
@@ -212,7 +218,7 @@
       </collision>
     </link>
     <!-- Link wrist -->
-    <link name="${prefix}wrist_link">
+    <link name="${prefix}link_5">
       <inertial>
         <origin xyz="-0.000103312 -0.0386143 0.0281156" rpy="0 0 0"/>
         <mass value="0.079"/>
@@ -331,7 +337,7 @@
     <!-- Joint from wrist to gripper -->
     <joint name="joint_5" type="revolute">
       <origin xyz="5.55112e-17 -0.0611 0.0181" rpy="1.5708 0.0486795 3.14159"/>
-      <parent link="${prefix}wrist_link"/>
+      <parent link="${prefix}link_5"/>
       <child link="${prefix}gripper_link"/>
       <axis xyz="0 0 1"/>
       <limit effort="10" velocity="10" lower="-2.74385" upper="2.84121"/>
@@ -339,8 +345,8 @@
     <!-- Joint from lower_arm to wrist -->
     <joint name="joint_4" type="revolute">
       <origin xyz="-0.1349 0.0052 3.62355e-17" rpy="4.02456e-15 8.67362e-16 -1.5708"/>
-      <parent link="${prefix}lower_arm_link"/>
-      <child link="${prefix}wrist_link"/>
+      <parent link="${prefix}link_4"/>
+      <child link="${prefix}link_5"/>
       <axis xyz="0 0 1"/>
       <limit effort="10" velocity="10" lower="-1.65806" upper="1.65806"/>
     </joint>
@@ -348,24 +354,24 @@
     <!-- Note: 5-degree calibration offset applied to joint limits -->
     <joint name="joint_3" type="revolute">
       <origin xyz="-0.11257 -0.028 1.73763e-16" rpy="-3.63608e-16 8.74301e-16 1.5708"/>
-      <parent link="${prefix}upper_arm_link"/>
-      <child link="${prefix}lower_arm_link"/>
+      <parent link="${prefix}link_3"/>
+      <child link="${prefix}link_4"/>
       <axis xyz="0 0 1"/>
       <limit effort="10" velocity="10" lower="-1.69" upper="1.69"/>
     </joint>
     <!-- Joint from shoulder to upper_arm -->
     <joint name="joint_2" type="revolute">
       <origin xyz="-0.0303992 -0.0182778 -0.0542" rpy="-1.5708 -1.5708 0"/>
-      <parent link="${prefix}shoulder_link"/>
-      <child link="${prefix}upper_arm_link"/>
+      <parent link="${prefix}link_2"/>
+      <child link="${prefix}link_3"/>
       <axis xyz="0 0 1"/>
       <limit effort="10" velocity="10" lower="-1.74533" upper="1.74533"/>
     </joint>
     <!-- Joint from base to shoulder -->
     <joint name="joint_1" type="revolute">
       <origin xyz="0.0388353 -8.97657e-09 0.0624" rpy="3.14159 4.18253e-17 -3.14159"/>
-      <parent link="${prefix}base_link"/>
-      <child link="${prefix}shoulder_link"/>
+      <parent link="${prefix}link_1"/>
+      <child link="${prefix}link_2"/>
       <axis xyz="0 0 1"/>
       <limit effort="10" velocity="10" lower="-1.91986" upper="1.91986"/>
     </joint>

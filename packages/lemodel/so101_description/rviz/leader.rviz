@@ -63,7 +63,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        leader_base_link:
+        leader_link_1:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -77,7 +77,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        leader_link_3:
+        leader_link_4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -87,12 +87,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        leader_link_1:
+        leader_link_2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        leader_link_2:
+        leader_link_3:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -107,7 +107,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        leader_wrist_link:
+        leader_link_5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -123,7 +123,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: leader_base_link
+    Fixed Frame: leader_link_1
     Frame Rate: 30
   Name: root
   Tools:
