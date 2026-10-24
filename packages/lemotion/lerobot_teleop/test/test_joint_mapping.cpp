@@ -24,12 +24,12 @@ TEST_F(
   MapsShuffledJointStatesToControllerOrder)
 {
   const std::vector<std::string> shuffled_joint_names{
-    "elbow_flex",
+    "joint_3",
     "gripper",
-    "shoulder_lift",
-    "shoulder_pan",
-    "wrist_flex",
-    "wrist_roll"
+    "joint_2",
+    "joint_1",
+    "joint_4",
+    "joint_5"
   };
 
   const std::vector<double> shuffled_leader_positions{

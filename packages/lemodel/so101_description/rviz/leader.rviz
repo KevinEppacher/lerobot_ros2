@@ -77,7 +77,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        leader_lower_arm_link:
+        leader_link_3:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -87,12 +87,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        leader_shoulder_link:
+        leader_link_1:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        leader_upper_arm_link:
+        leader_link_2:
           Alpha: 1
           Show Axes: false
           Show Trail: false

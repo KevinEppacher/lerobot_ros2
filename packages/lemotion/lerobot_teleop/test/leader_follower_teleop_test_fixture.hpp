@@ -171,11 +171,11 @@ protected:
     double tolerance);
 
   const std::vector<std::string> joint_names_{
-    "shoulder_pan",
-    "shoulder_lift",
-    "elbow_flex",
-    "wrist_flex",
-    "wrist_roll",
+    "joint_1",
+    "joint_2",
+    "joint_3",
+    "joint_4",
+    "joint_5",
     "gripper"
   };
 
