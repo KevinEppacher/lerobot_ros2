@@ -27,7 +27,8 @@ def generate_launch_description():
     xacro_file = os.path.join(
         so101_description_share,
         "urdf",
-        "so101.urdf.xacro",
+        "robots",
+        "so101_5dof.urdf.xacro",
     )
 
     default_calibration_file = os.path.join(
