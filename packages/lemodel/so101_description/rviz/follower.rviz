@@ -63,26 +63,12 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        follower_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         follower_link_1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        follower_gripper_frame_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        follower_gripper_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        follower_link_4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        follower_moving_jaw_so101_v1_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -97,17 +83,26 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        follower_wrist_camera_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        follower_wrist_camera_mount_link:
+        follower_link_4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
         follower_link_5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        follower_moving_jaw_so101:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        follower_tcp:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        follower_wrist_roll_follower_so101:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -123,7 +118,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: follower_link_1
+    Fixed Frame: follower_base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -166,25 +161,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.618607223033905
+      Distance: 0.9733904600143433
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.013481727801263332
-        Y: -0.08714029937982559
-        Z: 0.06792540848255157
+        X: 0.14108934998512268
+        Y: 0.024716710671782494
+        Z: 0.11119895428419113
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4103981554508209
+      Pitch: 0.3603981137275696
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.113585948944092
+      Yaw: 5.47358512878418
     Saved: ~
 Window Geometry:
   Displays:
