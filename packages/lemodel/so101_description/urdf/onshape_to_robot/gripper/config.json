@@ -1,0 +1,7 @@
+{
+    "url": "https://cad.onshape.com/documents/df54c2d0d5118dfe6b247a42/w/10fff0edb753715a22c52ae0/e/a17877ec29f216194ee09aa0",
+    "output_format": "urdf",
+    "robot_name": "gripper",
+    "output_filename": "gripper",
+    "assets_directory": "assets"
+}
