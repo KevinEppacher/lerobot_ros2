@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Link definitions -->
+  <xacro:include filename="../links/common/base_link.xacro"/>
+  <xacro:include filename="../links/common/link_1.xacro"/>
+  <xacro:include filename="../links/common/link_2.xacro"/>
+  <xacro:include filename="../links/6dof/link_3.xacro"/>
+  <xacro:include filename="../links/6dof/link_4.xacro"/>
+  <xacro:include filename="../links/6dof/link_5.xacro"/>
+  <xacro:include filename="../links/6dof/link_6.xacro"/>
+  <!-- Joint definitions -->
+  <xacro:include filename="../joints/6dof_joints.xacro"/>
+  <xacro:macro name="so101_6dof" params="prefix:=''">
+    <!-- Links -->
+    <xacro:so101_base_link prefix="${prefix}"/>
+    <xacro:so101_link_1 prefix="${prefix}"/>
+    <xacro:so101_link_2 prefix="${prefix}"/>
+    <xacro:so101_link_3 prefix="${prefix}"/>
+    <xacro:so101_link_4 prefix="${prefix}"/>
+    <xacro:so101_link_5 prefix="${prefix}"/>
+    <xacro:so101_link_6 prefix="${prefix}"/>
+    <!-- Joints -->
+    <xacro:so101_6dof_joints prefix="${prefix}"/>
+  </xacro:macro>
+</robot>

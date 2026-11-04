@@ -6,8 +6,9 @@
   <xacro:arg name="prefix" default="follower_"/>
   <xacro:arg name="robot_plugin" default="hiwonder_lerobot_cpp/Follower"/>
   <!-- Robot -->
-  <xacro:include filename="$(find so101_description)/urdf/so101_macro.xacro"/>
-  <xacro:include filename="$(find so101_description)/urdf/so101_ros2_control.xacro"/>
+  <xacro:include filename="$(find so101_description)/urdf/robots/so101_5dof_macro.xacro"/>
+  <xacro:include filename="$(find so101_description)/urdf/control/so101_5dof_ros2_control.xacro"/>
+  <xacro:include filename="$(find so101_description)/urdf/utils/materials.xacro"/>
   <!-- Environment -->
   <xacro:include filename="$(find lerobot_environment_description)/urdf/table.xacro"/>
   <!-- World -->
@@ -21,7 +22,7 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
   <!-- SO-101 -->
-  <xacro:so101 prefix="$(arg prefix)"/>
+  <xacro:so101_5dof prefix="$(arg prefix)"/>
   <xacro:so101_ros2_control port="$(arg port)" calibration_file="$(arg calibration_file)" prefix="$(arg prefix)" robot_plugin="$(arg robot_plugin)"/>
   <!-- Table to robot -->
   <joint name="table_to_robot" type="fixed">

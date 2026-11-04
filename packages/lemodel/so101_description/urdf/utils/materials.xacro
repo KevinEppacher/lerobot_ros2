@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- 3D-printed parts -->
+  <material name="so101_white">
+    <color rgba="0.964706 0.964706 0.952941 1"/>
+  </material>
+  <!-- Servo motors -->
+  <material name="so101_metal">
+    <color rgba="0.1 0.1 0.1 1.0"/>
+  </material>
+  <!-- Dark components -->
+  <material name="so101_dark">
+    <color rgba="0.2 0.2 0.2 1"/>
+  </material>
+</robot>

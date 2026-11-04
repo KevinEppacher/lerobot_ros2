@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="so101_link_1" params="prefix:=''">
+    <link name="${prefix}link_1">
+      <inertial>
+        <origin xyz="0.0311254 4.38617e-05 -0.0119832" rpy="0 0 0"/>
+        <mass value="0.152781"/>
+        <inertia ixx="0.000152851" ixy="8.7999e-08" ixz="4.70644e-06" iyy="0.000154379" iyz="-1.26639e-07" izz="4.16335e-05"/>
+      </inertial>
+      <!-- Part rotation_pitch_so101 -->
+      <visual>
+        <origin xyz="-0.012 0 0.0464" rpy="-1.5708 -0 -3.14159"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/rotation_pitch_so101.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="-0.012 0 0.0464" rpy="-1.5708 -0 -3.14159"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/rotation_pitch_so101.stl"/>
+        </geometry>
+      </collision>
+      <!-- Part sts3215_03a_2 -->
+      <visual>
+        <origin xyz="0.0306 -0.0005 -0.0417" rpy="-1.5708 1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a.stl"/>
+        </geometry>
+        <material name="so101_metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0.0306 -0.0005 -0.0417" rpy="-1.5708 1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a.stl"/>
+        </geometry>
+      </collision>
+      <!-- Part rotation_pitch_so101_2 -->
+      <visual>
+        <origin xyz="0.0678 -0.0002 0.0158499" rpy="-1.5708 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/rotation_pitch_so101__2.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0.0678 -0.0002 0.0158499" rpy="-1.5708 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/rotation_pitch_so101__2.stl"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+</robot>
