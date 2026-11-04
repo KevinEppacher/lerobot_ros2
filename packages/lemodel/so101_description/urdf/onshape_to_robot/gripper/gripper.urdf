@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<!-- Generated using onshape-to-robot -->
+<!-- Onshape https://cad.onshape.com/documents/df54c2d0d5118dfe6b247a42/w/10fff0edb753715a22c52ae0/e/a17877ec29f216194ee09aa0 -->
+<robot name="gripper">
+  <!-- Link wrist_roll_follower_so101 -->
+  <link name="wrist_roll_follower_so101">
+    <inertial>
+      <origin xyz="-0.00521994 -0.000300304 0.0265383" rpy="0 0 0"/>
+      <mass value="0.120908"/>
+      <inertia ixx="5.38611e-05" ixy="7.2316e-07" ixz="1.19349e-05" iyy="7.72544e-05" iyz="-1.47324e-07" izz="5.22936e-05"/>
+    </inertial>
+    <!-- Part wrist_roll_follower_so101 -->
+    <visual>
+      <origin xyz="0 0.000218214 -0.000949706" rpy="-0 0 -0"/>
+      <geometry>
+        <mesh filename="package://assets/wrist_roll_follower_so101.stl"/>
+      </geometry>
+      <material name="wrist_roll_follower_so101_material">
+        <color rgba="0.964706 0.964706 0.952941 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0.000218214 -0.000949706" rpy="-0 0 -0"/>
+      <geometry>
+        <mesh filename="package://assets/wrist_roll_follower_so101.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part sts3215_03a -->
+    <visual>
+      <origin xyz="0.0077 -0.0002 0.0234" rpy="1.5708 0 -0"/>
+      <geometry>
+        <mesh filename="package://assets/sts3215_03a.stl"/>
+      </geometry>
+      <material name="sts3215_03a_material">
+        <color rgba="0.796078 0.823529 0.937255 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.0077 -0.0002 0.0234" rpy="1.5708 0 -0"/>
+      <geometry>
+        <mesh filename="package://assets/sts3215_03a.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Link moving_jaw_so101 -->
+  <link name="moving_jaw_so101">
+    <inertial>
+      <origin xyz="-0.00157491 -0.0300246 0.0192757" rpy="0 0 0"/>
+      <mass value="0.0258674"/>
+      <inertia ixx="1.42581e-05" ixy="-6.89495e-07" ixz="-1.2741e-08" iyy="4.07485e-06" iyz="-2.36868e-07" izz="1.13978e-05"/>
+    </inertial>
+    <!-- Part moving_jaw_so101 -->
+    <visual>
+      <origin xyz="0 -0 0.0189" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://assets/moving_jaw_so101.stl"/>
+      </geometry>
+      <material name="moving_jaw_so101_material">
+        <color rgba="0.964706 0.964706 0.952941 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 -0 0.0189" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://assets/moving_jaw_so101.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Joint from wrist_roll_follower_so101 to moving_jaw_so101 -->
+  <joint name="Revolute 1" type="revolute">
+    <origin xyz="0.0202 -0.0189 0.0234" rpy="-1.5708 0 -0"/>
+    <parent link="wrist_roll_follower_so101"/>
+    <child link="moving_jaw_so101"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-0.174533" upper="1.74533"/>
+  </joint>
+</robot>

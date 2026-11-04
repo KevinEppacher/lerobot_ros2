@@ -1,3 +1,4 @@
 mypy==1.20.1
 ruff==0.15.10
 typos==1.45.1
+onshape-to-robot
