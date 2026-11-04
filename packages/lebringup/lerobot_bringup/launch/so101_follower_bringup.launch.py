@@ -90,7 +90,7 @@ def generate_launch_description():
 
     description_file_arg = DeclareLaunchArgument(
         "description_file",
-        default_value="urdf/so101.urdf.xacro",
+        default_value="urdf/robots/so101_5dof.urdf.xacro",
         description="Relative path to the Xacro description",
     )
 
