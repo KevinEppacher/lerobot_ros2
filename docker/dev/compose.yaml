@@ -51,3 +51,19 @@ services:
       <<: *ros-environment
       QT_X11_NO_MITSHM: 1
       DISPLAY: ${DISPLAY}
+
+  foxglove_bridge:
+    image: ros2/jazzy/foxglove-bridge
+    build:
+      context: ../../motion_ws/.config/dev
+      dockerfile: Dockerfile
+    environment:
+      <<: *ros-environment
+    container_name: ros2_foxglove_bridge_container
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ../../motion_ws:/workspace
+      - ../../packages/lemodel:/workspace/src/lemodel
+      - ./entrypoints:/workspace/entrypoints
+    command: ["/bin/bash", "/workspace/entrypoints/foxglove.bash"]
