@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="so101_link_5" params="prefix:=''">
+    <!-- Link 5dof_link_5 -->
+    <link name="${prefix}link_5">
+      <inertial>
+        <origin xyz="-0 -0 -0.0013" rpy="0 0 0"/>
+        <mass value="0.00192972"/>
+        <inertia ixx="4.9236e-08" ixy="0" ixz="0" iyy="4.9236e-08" iyz="0" izz="9.6462e-08"/>
+      </inertial>
+      <!-- Part 5dof_link_5 -->
+      <visual>
+        <origin xyz="0 -0 -0" rpy="-3.1416 -0 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/flange.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0 -0 -0" rpy="-3.1416 -0 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/flange.stl"/>
+        </geometry>
+      </collision>
+    </link>
+    <!-- Tool Center Point -->
+    <link name="${prefix}tcp"/>
+    <joint name="${prefix}tcp_joint" type="fixed">
+      <parent link="${prefix}link_5"/>
+      <child link="${prefix}tcp"/>
+      <origin xyz="0 0 -0.0025" rpy="${pi} 0 0"/>
+    </joint>
+  </xacro:macro>
+</robot>

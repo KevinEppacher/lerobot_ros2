@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="so101_base_link" params="prefix:=''">
+    <!-- Link base_link -->
+    <link name="${prefix}base_link">
+      <inertial>
+        <origin xyz="0.0184526 -3.69594e-05 0.0306338" rpy="0 0 0"/>
+        <mass value="0.233154"/>
+        <inertia ixx="0.000226262" ixy="-6.88253e-07" ixz="1.43988e-05" iyy="0.000225689" iyz="1.36258e-07" izz="0.000233596"/>
+      </inertial>
+      <!-- Part sts3215_03a -->
+      <visual>
+        <origin xyz="0.0327 1e-11 0.0461" rpy="-0 -4.012e-09 4.43e-10"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a_v1.stl"/>
+        </geometry>
+      <material name="so101_metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0.0327 1e-11 0.0461" rpy="-0 -4.012e-09 4.43e-10"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a_v1.stl"/>
+        </geometry>
+      </collision>
+      <!-- Part base_link_step -->
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/base_link_step.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/base_link_step.stl"/>
+        </geometry>
+      </collision>
+      <!-- Part base_motor_holder_so101 -->
+      <visual>
+        <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/base_motor_holder_so101.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="1.5708 0 1.5708"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/base_motor_holder_so101.stl"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+</robot>

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="so101_link_4" params="prefix:=''">
+    <!-- Link 5dof_link_4 -->
+    <link name="${prefix}link_4">
+      <inertial>
+        <origin xyz="0.0356 -0.0002 0.0079" rpy="0 0 0"/>
+        <mass value="0.0905154"/>
+        <inertia ixx="5.23387e-05" ixy="1.2444e-08" ixz="6.786e-08" iyy="3.4528e-05" iyz="6.08705e-06" izz="3.01289e-05"/>
+      </inertial>
+      <!-- Part wrist_roll_pitch_so101 -->
+      <visual>
+        <origin xyz="0.028 0 -0" rpy="-0 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/wrist_roll_pitch_so101.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0.028 0 -0" rpy="-0 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/wrist_roll_pitch_so101.stl"/>
+        </geometry>
+      </collision>
+      <!-- Part sts3215_03a_5 -->
+      <visual>
+        <origin xyz="0.0424 0 0.0125" rpy="0 1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a.stl"/>
+        </geometry>
+        <material name="so101_metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0.0424 0 0.0125" rpy="0 1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a.stl"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+</robot>

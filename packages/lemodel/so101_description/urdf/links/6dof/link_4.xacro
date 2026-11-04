@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="so101_link_4" params="prefix:=''">
+    <!-- Link 6dof_link_4 -->
+    <link name="${prefix}link_4">
+      <inertial>
+        <origin xyz="5.40994e-05 -0.00231718 -0.0488906" rpy="0 0 0"/>
+        <mass value="0.127965"/>
+        <inertia ixx="8.72585e-05" ixy="2.1427e-08" ixz="3.0399e-08" iyy="0.000104692" iyz="-5.85084e-06" izz="3.63967e-05"/>
+      </inertial>
+      <!-- Part sts3215_03a_5 -->
+      <visual>
+        <origin xyz="0.0004 -0.0052 -0.0715499" rpy="-3.14159 1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a.stl"/>
+        </geometry>
+        <material name="so101_metal"/>
+      </visual>
+      <collision>
+        <origin xyz="0.0004 -0.0052 -0.0715499" rpy="-3.14159 1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/sts3215_03a.stl"/>
+        </geometry>
+      </collision>
+      <!-- Part motor_holder_so101_wrist -->
+      <visual>
+        <origin xyz="0.0002 0.032 -0.014" rpy="-0 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/motor_holder_so101_wrist.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0.0002 0.032 -0.014" rpy="-0 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/motor_holder_so101_wrist.stl"/>
+        </geometry>
+      </collision>
+      <!-- Part arm5 -->
+      <visual>
+        <origin xyz="0 0.032 -0.014" rpy="-0 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/arm5.stl"/>
+        </geometry>
+        <material name="so101_white"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0.032 -0.014" rpy="-0 -1.5708 0"/>
+        <geometry>
+          <mesh filename="package://so101_description/meshes/visual/arm5.stl"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+</robot>

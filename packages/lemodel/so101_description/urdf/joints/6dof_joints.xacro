@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="so101_6dof_joints" params="prefix:=''">
+    <!-- Joint from 6dof_link_5 to 6dof_link_6 -->
+    <joint name="joint_6" type="revolute">
+      <origin xyz="-0.0586 0 0" rpy="1.5708 0 1.5708"/>
+      <parent link="${prefix}link_5"/>
+      <child link="${prefix}link_6"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="10" velocity="10" lower="-2.72874" upper="2.85631"/>
+    </joint>
+    <!-- Joint from 6dof_link_4 to 6dof_link_5 -->
+    <joint name="joint_5" type="revolute">
+      <origin xyz="-0.0001 -0.0052 -0.0840499" rpy="-0 -1.5708 0"/>
+      <parent link="${prefix}link_4"/>
+      <child link="${prefix}link_5"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="10" velocity="10" lower="-1.65806" upper="1.65806"/>
+    </joint>
+    <!-- Joint from 6dof_link_3 to 6dof_link_4 -->
+    <joint name="joint_4" type="revolute">
+      <origin xyz="-0.0611 0 0" rpy="0 1.5708 0"/>
+      <parent link="${prefix}link_3"/>
+      <child link="${prefix}link_4"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="10" velocity="10" lower="-2.74366" upper="2.8414"/>
+    </joint>
+    <!-- Joint from link_2 to 6dof_link_3 -->
+    <joint name="joint_3" type="revolute">
+      <origin xyz="-0.11257 -0.028 0.0183" rpy="-0 0 1.5708"/>
+      <parent link="${prefix}link_2"/>
+      <child link="${prefix}link_3"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="10" velocity="10" lower="-1.68948" upper="1.5708"/>
+    </joint>
+    <!-- Joint from link_1 to link_2 -->
+    <joint name="joint_2" type="revolute">
+      <origin xyz="0.0312945 0.0169781 -0.0542" rpy="1.5708 -1.56918 -0.0394785"/>
+      <parent link="${prefix}link_1"/>
+      <child link="${prefix}link_2"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="10" velocity="10" lower="-1.74371" upper="1.74695"/>
+    </joint>
+    <!-- Joint from base_link to link_1 -->
+    <joint name="joint_1" type="revolute">
+      <origin xyz="0.0452 1.6e-11 0.0648" rpy="3.14159 -4.012e-09 4.43e-10"/>
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}link_1"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="10" velocity="10" lower="-1.88038" upper="1.95934"/>
+    </joint>
+  </xacro:macro>
+</robot>
