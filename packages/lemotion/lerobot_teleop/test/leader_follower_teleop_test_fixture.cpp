@@ -15,6 +15,8 @@
 #include "leader_follower_teleop_test_fixture.hpp"
 
 #include <algorithm>
+#include <random>
+#include <string>
 #include <thread>
 
 #include "lifecycle_msgs/msg/state.hpp"
@@ -36,14 +38,25 @@ void LeaderFollowerTeleopTest::TearDownTestSuite()
 
 void LeaderFollowerTeleopTest::SetUp()
 {
+  std::random_device random;
+  const std::string test_namespace =
+    "/lerobot_teleop_test_" + std::to_string(random()) + "_" + std::to_string(random());
+  const std::string leader_topic = test_namespace + "/leader/joint_states";
+  const std::string follower_topic = test_namespace + "/follower/joint_states";
+  const std::string command_topic =
+    test_namespace + "/follower/position_controller/commands";
+  const std::string guiding_service = test_namespace + "/leader/guiding_mode";
+
   mock_node_ =
     std::make_shared<rclcpp::Node>(
-    "teleop_test_mock");
+    "teleop_test_mock",
+    test_namespace,
+    rclcpp::NodeOptions().start_parameter_services(false));
 
   controller_node_ =
     std::make_shared<rclcpp::Node>(
     "position_controller",
-    "/follower");
+    test_namespace + "/follower");
 
   controller_node_->declare_parameter(
     "joints",
@@ -52,6 +65,10 @@ void LeaderFollowerTeleopTest::SetUp()
   rclcpp::NodeOptions options;
 
   options.parameter_overrides({
+      rclcpp::Parameter("leader.joint_state_topic", leader_topic),
+      rclcpp::Parameter("follower.joint_state_topic", follower_topic),
+      rclcpp::Parameter("follower.command_topic", command_topic),
+      rclcpp::Parameter("leader.guiding_mode_service", guiding_service),
       rclcpp::Parameter(
       "update_rate",
       100.0),
@@ -76,19 +93,19 @@ void LeaderFollowerTeleopTest::SetUp()
   leader_publisher_ =
     mock_node_->create_publisher<
     sensor_msgs::msg::JointState>(
-    "/leader/joint_states",
+    leader_topic,
     rclcpp::SensorDataQoS());
 
   follower_publisher_ =
     mock_node_->create_publisher<
     sensor_msgs::msg::JointState>(
-    "/follower/joint_states",
+    follower_topic,
     rclcpp::SensorDataQoS());
 
   command_subscription_ =
     mock_node_->create_subscription<
     std_msgs::msg::Float64MultiArray>(
-    "/follower/position_controller/commands",
+    command_topic,
     10,
     [this](
       const std_msgs::msg::Float64MultiArray::SharedPtr msg)
@@ -100,7 +117,7 @@ void LeaderFollowerTeleopTest::SetUp()
   controller_command_subscription_ =
     controller_node_->create_subscription<
     std_msgs::msg::Float64MultiArray>(
-    "/follower/position_controller/commands",
+    command_topic,
     10,
     [](
       const std_msgs::msg::Float64MultiArray::SharedPtr)
@@ -110,7 +127,7 @@ void LeaderFollowerTeleopTest::SetUp()
   guiding_service_ =
     mock_node_->create_service<
     std_srvs::srv::SetBool>(
-    "/leader/leader_so101/guiding_mode",
+    guiding_service,
     [this](
       const std_srvs::srv::SetBool::Request::SharedPtr request,
       std_srvs::srv::SetBool::Response::SharedPtr response)
