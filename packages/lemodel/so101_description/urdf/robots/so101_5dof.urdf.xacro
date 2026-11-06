@@ -7,7 +7,7 @@
   <xacro:include filename="so101_5dof_macro.xacro"/>
   <!-- Arguments -->
   <xacro:arg name="port" default="/dev/ttyACM0"/>
-  <xacro:arg name="calibration_file" default="$(find so101_description)/config/follower_example_calibration.yaml"/>
+  <xacro:arg name="calibration_file" default="$(find so101_description)/config/5dof/follower_example_calibration.yaml"/>
   <xacro:arg name="prefix" default=""/>
   <xacro:arg name="robot_plugin" default="hiwonder_lerobot_cpp/Follower"/>
   <!-- Instantiate macros -->

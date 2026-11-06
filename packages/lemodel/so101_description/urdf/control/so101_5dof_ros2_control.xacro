@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="so101_ros2_control" params="port calibration_file prefix robot_plugin">
+  <xacro:macro name="so101_ros2_control" params="port calibration_file prefix robot_plugin joint_prefix:=''">
     <ros2_control name="${prefix}so101" type="system">
       <hardware>
         <plugin>lerobot_ros2_control/LeRobotSystemHardware</plugin>
@@ -8,6 +8,9 @@
         <param name="port">${port}</param>
         <param name="baud_rate">1000000</param>
         <param name="calibration_file">${calibration_file}</param>
+        <xacro:if value="${joint_prefix != ''}">
+          <param name="joint_prefix">${joint_prefix}</param>
+        </xacro:if>
       </hardware>
       <joint name="joint_1">
         <command_interface name="position">
