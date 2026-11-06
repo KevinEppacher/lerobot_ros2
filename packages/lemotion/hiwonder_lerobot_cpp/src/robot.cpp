@@ -32,8 +32,29 @@ bool LeRobot::configure(
     return false;
   }
 
+  if (config.motor_ids.empty()) {
+    return false;
+  }
+
+  std::vector<uint8_t> seen_ids;
+  seen_ids.reserve(config.motor_ids.size());
+
+  for (const uint8_t id : config.motor_ids) {
+    // 0xFE is the broadcast ID and 0xFF is reserved.
+    if (id > kMaxServoId) {
+      return false;
+    }
+
+    if (std::find(seen_ids.begin(), seen_ids.end(), id) != seen_ids.end()) {
+      return false;
+    }
+
+    seen_ids.push_back(id);
+  }
+
   port_ = config.port;
   baud_rate_ = config.baud_rate;
+  motor_ids_ = config.motor_ids;
   return true;
 }
 
@@ -139,21 +160,6 @@ bool LeRobot::setTorqueEnabled(
   }
 
   return true;
-}
-
-void LeRobot::addMotor(
-  uint8_t id)
-{
-  if (isConnected()) {
-    throw std::logic_error(
-      "Cannot add motors while robot is connected");
-  }
-
-  if (std::find(motor_ids_.begin(), motor_ids_.end(), id) != motor_ids_.end()) {
-    throw std::logic_error("Cannot add duplicate motor ID");
-  }
-
-  motor_ids_.push_back(id);
 }
 
 bool LeRobot::isValidCommandPosition(

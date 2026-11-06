@@ -19,13 +19,6 @@
 namespace hiwonder
 {
 
-Follower::Follower()
-{
-  for (uint8_t id = 1; id <= 6; ++id) {
-    addMotor(id);
-  }
-}
-
 }  // namespace hiwonder
 
 PLUGINLIB_EXPORT_CLASS(hiwonder::Follower, lerobot::Robot)
