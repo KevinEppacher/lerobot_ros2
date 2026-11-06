@@ -25,8 +25,6 @@ find_package(yaml-cpp REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
     src/robot.cpp
-    src/leader.cpp
-    src/follower.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

@@ -147,8 +147,7 @@ def generate_launch_description():
                 " prefix:=",
                 namespace,
                 "_",
-                " robot_plugin:=hiwonder_lerobot_cpp/",
-                PythonExpression(["'", robot_type, "'.capitalize()"]),
+                " robot_plugin:=hiwonder_lerobot_cpp/Robot",
             ]
         ),
         value_type=str,

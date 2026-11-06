@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "hiwonder_lerobot_cpp/follower.hpp"
+#include "hiwonder_lerobot_cpp/robot.hpp"
 
 namespace
 {
@@ -75,7 +75,7 @@ int main(int argc, char ** argv)
     dof = std::stoi(argv[3]);
   }
 
-  hiwonder::Follower robot;
+  hiwonder::LeRobot robot;
 
   lerobot::RobotConfig config;
   config.port = argv[1];

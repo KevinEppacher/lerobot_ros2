@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#include "hiwonder_lerobot_cpp/follower.hpp"
+#include "hiwonder_lerobot_cpp/robot.hpp"
 
 namespace
 {
@@ -83,7 +83,7 @@ void waitForEnter()
 }
 
 bool readPosition(
-  hiwonder::Follower & robot,
+  hiwonder::LeRobot & robot,
   std::size_t joint_count,
   std::size_t index,
   int16_t & position)
@@ -112,7 +112,7 @@ bool readPosition(
 }
 
 bool calibrateJoint(
-  hiwonder::Follower & robot,
+  hiwonder::LeRobot & robot,
   const std::vector<Joint> & joints,
   std::size_t index,
   JointCalibration & calibration)
@@ -299,7 +299,7 @@ int main(int argc, char ** argv)
   const std::string port = argv[1];
   const std::string calibration_path = argv[2];
 
-  hiwonder::Follower robot;
+  hiwonder::LeRobot robot;
 
   lerobot::RobotConfig config;
   config.port = port;
