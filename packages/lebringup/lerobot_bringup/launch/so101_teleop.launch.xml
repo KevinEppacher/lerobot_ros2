@@ -1,27 +1,33 @@
 <?xml version="1.0"?>
 <launch>
+  <!-- Robot configuration -->
+  <arg name="dof" default="5"/>
   <!-- Leader -->
   <arg name="leader_port" default="/dev/serial/by-id/usb-1a86_USB_Single_Serial_5C82106754-if00"/>
-  <arg name="leader_calibration_path" default="$(find-pkg-share so101_description)/config/leader_example_calibration.yaml"/>
+  <arg name="leader_calibration_path" default="$(find-pkg-share so101_description)/config/$(var dof)dof/leader_example_calibration.yaml"/>
   <!-- Follower -->
   <arg name="follower_port" default="/dev/serial/by-id/usb-1a86_USB_Single_Serial_5C82111146-if00"/>
-  <arg name="follower_calibration_path" default="$(find-pkg-share so101_description)/config/follower_example_calibration.yaml"/>
+  <arg name="follower_calibration_path" default="$(find-pkg-share so101_description)/config/$(var dof)dof/follower_example_calibration.yaml"/>
   <!-- Visualization -->
   <arg name="gui" default="false"/>
   <!-- Leader -->
-  <include file="$(find-pkg-share lerobot_bringup)/launch/so101_leader_bringup.launch.py">
+  <include file="$(find-pkg-share lerobot_bringup)/launch/so101_bringup.launch.py">
+    <arg name="robot_type" value="leader"/>
     <arg name="namespace" value="leader"/>
+    <arg name="dof" value="$(var dof)"/>
     <arg name="port" value="$(var leader_port)"/>
     <arg name="calibration_path" value="$(var leader_calibration_path)"/>
     <arg name="gui" value="$(var gui)"/>
   </include>
   <!-- Follower -->
-  <include file="$(find-pkg-share lerobot_bringup)/launch/so101_follower_bringup.launch.py">
+  <include file="$(find-pkg-share lerobot_bringup)/launch/so101_bringup.launch.py">
+    <arg name="robot_type" value="follower"/>
     <arg name="namespace" value="follower"/>
+    <arg name="dof" value="$(var dof)"/>
     <arg name="port" value="$(var follower_port)"/>
     <arg name="calibration_path" value="$(var follower_calibration_path)"/>
     <arg name="gui" value="false"/>
   </include>
-  <!-- Teleop Node -->
-  <include file="$(find-pkg-share lerobot_teleop)/launch/leader_follower_teleop.launch.py"></include>
+  <!-- Teleoperation -->
+  <include file="$(find-pkg-share lerobot_teleop)/launch/leader_follower_teleop.launch.py"/>
 </launch>

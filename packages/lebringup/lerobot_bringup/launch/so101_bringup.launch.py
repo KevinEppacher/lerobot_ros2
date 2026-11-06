@@ -5,9 +5,10 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import (
     PathJoinSubstitution,
 )
@@ -24,42 +25,70 @@ def generate_launch_description():
         "lerobot_bringup"
     )
 
-    xacro_file = os.path.join(
-        so101_description_share,
-        "urdf",
-        "robots",
-        "so101_5dof.urdf.xacro",
+    robot_type = LaunchConfiguration("robot_type")
+    description_package = LaunchConfiguration("description_package")
+    description_file = LaunchConfiguration("description_file")
+
+    dof = LaunchConfiguration("dof")
+
+    # An explicit description_file overrides the DOF-based default.
+    xacro_file = PathJoinSubstitution(
+        [
+            FindPackageShare(description_package),
+            PythonExpression(
+                [
+                    "'", description_file, "' or 'urdf/robots/so101_",
+                    dof, "dof.urdf.xacro'",
+                ]
+            ),
+        ]
     )
 
-    default_calibration_file = os.path.join(
-        so101_description_share,
-        "config",
-        "leader_example_calibration.yaml",
-    )
+    # Only a 5DOF example calibration exists; 6DOF requires an explicit file.
+    # One controllers file per DOF, listing the matching joints.
+    controllers_file = [
+        os.path.join(lerobot_bringup_share, "config", "so101_"),
+        LaunchConfiguration("dof"),
+        "dof_controllers.yaml",
+    ]
 
-    controllers_file = os.path.join(
-        lerobot_bringup_share,
-        "config",
-        "so101_controllers.yaml",
-    )
-
-    rviz_config_file = os.path.join(
-        so101_description_share,
-        "rviz",
-        "leader.rviz",
-    )
+    # Concatenated substitutions: <share>/rviz/<robot_type>.rviz
+    rviz_config_file = [
+        os.path.join(so101_description_share, "rviz", ""),
+        robot_type,
+        ".rviz",
+    ]
 
     # ---------------------- Arguments ------------------------------#
 
+    dof_arg = DeclareLaunchArgument(
+        "dof",
+        default_value="5",
+        choices=["5", "6"],
+        description="Robot degrees of freedom",
+    )
+
+    robot_type_arg = DeclareLaunchArgument(
+        "robot_type",
+        default_value="follower",
+        choices=["leader", "follower"],
+        description="Robot role; selects plugin, RViz config and defaults",
+    )
+
     namespace_arg = DeclareLaunchArgument(
         "namespace",
-        default_value="leader",
+        default_value=robot_type,
         description="Namespace for the robot",
     )
 
     port_arg = DeclareLaunchArgument(
         "port",
-        default_value="/dev/ttyACM0",
+        default_value=PythonExpression(
+            [
+                "'/dev/ttyACM0' if '", robot_type,
+                "' == 'leader' else '/dev/ttyACM1'",
+            ]
+        ),
         description=(
             "Serial port of the HiWonder servo bus. "
             "Persistent /dev/serial/by-id/ paths are recommended."
@@ -68,7 +97,13 @@ def generate_launch_description():
 
     calibration_path_argument = DeclareLaunchArgument(
         "calibration_path",
-        default_value=default_calibration_file,
+        default_value=[
+            os.path.join(so101_description_share, "config", ""),
+            dof,
+            "dof/",
+            robot_type,
+            "_example_calibration.yaml",
+        ],
         description="Path to the SO-101 calibration file",
     )
 
@@ -76,6 +111,21 @@ def generate_launch_description():
         "gui",
         default_value="false",
         description="Enable RViz",
+    )
+
+    description_package_arg = DeclareLaunchArgument(
+        "description_package",
+        default_value="so101_description",
+        description="Package containing the robot description",
+    )
+
+    description_file_arg = DeclareLaunchArgument(
+        "description_file",
+        default_value="",
+        description=(
+            "Relative path to the Xacro description. "
+            "Defaults to the description matching dof."
+        ),
     )
 
     port = LaunchConfiguration("port")
@@ -97,7 +147,8 @@ def generate_launch_description():
                 " prefix:=",
                 namespace,
                 "_",
-                " robot_plugin:=hiwonder_lerobot_cpp/Leader",
+                " robot_plugin:=hiwonder_lerobot_cpp/",
+                PythonExpression(["'", robot_type, "'.capitalize()"]),
             ]
         ),
         value_type=str,
@@ -173,10 +224,14 @@ def generate_launch_description():
     # ---------------------- Launch Description ------------------------------#
 
     ld = LaunchDescription()
+    ld.add_action(robot_type_arg)
+    ld.add_action(dof_arg)
     ld.add_action(port_arg)
     ld.add_action(calibration_path_argument)
     ld.add_action(gui_arg)
     ld.add_action(namespace_arg)
+    ld.add_action(description_package_arg)
+    ld.add_action(description_file_arg)
     ld.add_action(robot_state_publisher)
     ld.add_action(controller_manager)
     ld.add_action(joint_state_broadcaster)

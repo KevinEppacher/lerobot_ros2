@@ -30,6 +30,7 @@ def generate_launch_description():
             [
                 FindPackageShare("so101_description"),
                 "config",
+                "5dof",
                 "follower_example_calibration.yaml",
             ]
         ),
@@ -55,11 +56,12 @@ def generate_launch_description():
                 [
                     FindPackageShare("lerobot_bringup"),
                     "launch",
-                    "so101_follower_bringup.launch.py",
+                    "so101_bringup.launch.py",
                 ]
             )
         ),
         launch_arguments={
+            "robot_type": "follower",
             "namespace": namespace,
             "port": port,
             "calibration_path": calibration_path,
