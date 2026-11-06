@@ -12,11 +12,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cstdint>
+#include <exception>
 #include <iostream>
+#include <stdexcept>
 #include <string>
+#include <vector>
+
+#include "hiwonder_servo_driver/hiwonder_bus.hpp"
+#include "hiwonder_servo_driver/serial_port.hpp"
 #include "lerobot_cpp/robot.hpp"
 
 #include "hiwonder_lerobot_cpp/follower.hpp"
+
+namespace
+{
+
+constexpr uint32_t kBaudRate = 1000000;
+constexpr uint8_t kMinServoId = 1;
+constexpr uint8_t kMaxServoId = 20;
+
+// Scans the same ID range as hiwonder-scan. Motors must have contiguous IDs
+// starting at 1, so a gap is reported as a missing or unresponsive motor.
+std::vector<uint8_t> discoverMotorIds(const std::string & port)
+{
+  hiwonder::SerialPort serial(port, kBaudRate);
+  serial.open();
+
+  hiwonder::HiwonderBus bus(serial);
+
+  std::vector<uint8_t> ids;
+
+  for (uint16_t id = kMinServoId; id <= kMaxServoId; ++id) {
+    if (bus.ping(static_cast<uint8_t>(id))) {
+      ids.push_back(static_cast<uint8_t>(id));
+    }
+  }
+
+  if (ids.empty()) {
+    throw std::runtime_error("No motors found on the bus");
+  }
+
+  for (std::size_t i = 0; i < ids.size(); ++i) {
+    if (ids[i] != i + 1) {
+      throw std::runtime_error(
+        "Motor ID " + std::to_string(i + 1) +
+        " is missing or unresponsive (found IDs are not contiguous from 1)");
+    }
+  }
+
+  serial.close();
+
+  return ids;
+}
+
+}  // namespace
 
 int main(int argc, char ** argv)
 {
@@ -47,10 +97,26 @@ int main(int argc, char ** argv)
 
   const bool enable_torque = mode == "on";
 
+  std::vector<uint8_t> discovered_ids;
+
+  try {
+    discovered_ids = discoverMotorIds(port);
+  } catch (const std::exception & exception) {
+    std::cerr << "Error: " << exception.what() << '\n';
+    return 1;
+  }
+
+  std::cout << "Found " << discovered_ids.size() << " motor(s): ";
+  for (const auto id : discovered_ids) {
+    std::cout << static_cast<int>(id) << ' ';
+  }
+  std::cout << '\n';
+
   hiwonder::Follower robot;
   lerobot::RobotConfig config;
   config.port = port;
   config.baud_rate = 1000000;
+  config.motor_ids = discovered_ids;
 
   if(!robot.configure(config)) {
     std::cerr << "Failed to configure robot\n";

@@ -57,12 +57,22 @@ int16_t addDegrees(
 
 int main(int argc, char ** argv)
 {
-  if (argc != 2) {
+  int dof = 5;
+
+  if (
+    (argc != 2 && argc != 4) ||
+    (argc == 4 && (std::string(argv[2]) != "--dof" ||
+    (std::string(argv[3]) != "5" && std::string(argv[3]) != "6"))))
+  {
     std::cerr
-      << "Usage: lerobot-test-move <port>\n"
-      << "Example: lerobot-test-move /dev/ttyACM0\n";
+      << "Usage: lerobot-test-move <port> [--dof <5|6>]\n"
+      << "Example: lerobot-test-move /dev/ttyACM0 --dof 6\n";
 
     return 1;
+  }
+
+  if (argc == 4) {
+    dof = std::stoi(argv[3]);
   }
 
   hiwonder::Follower robot;
@@ -70,6 +80,10 @@ int main(int argc, char ** argv)
   lerobot::RobotConfig config;
   config.port = argv[1];
   config.baud_rate = 1000000;
+  // dof arm joints plus the gripper, with sequential servo IDs starting at 1.
+  for (int id = 1; id <= dof + 1; ++id) {
+    config.motor_ids.push_back(static_cast<uint8_t>(id));
+  }
 
   if (!robot.configure(config)) {
     std::cerr << "Failed to configure robot\n";

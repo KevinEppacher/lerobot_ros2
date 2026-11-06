@@ -14,7 +14,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <array>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
@@ -29,7 +28,7 @@ namespace
 
 struct Joint
 {
-  const char * name;
+  std::string name;
   uint8_t servo_id;
 };
 
@@ -39,14 +38,43 @@ struct JointCalibration
   int16_t upper_position;
 };
 
-constexpr std::array<Joint, 6> kJoints{{
-  {"joint_1", 1},
-  {"joint_2", 2},
-  {"joint_3", 3},
-  {"joint_4", 4},
-  {"joint_5", 5},
-  {"gripper", 6}
-}};
+// Builds joint_1..joint_<dof> followed by the gripper on the next servo ID.
+std::vector<Joint> makeJoints(int dof)
+{
+  std::vector<Joint> joints;
+
+  for (int i = 1; i <= dof; ++i) {
+    joints.push_back({"joint_" + std::to_string(i), static_cast<uint8_t>(i)});
+  }
+
+  joints.push_back({"gripper", static_cast<uint8_t>(dof + 1)});
+
+  return joints;
+}
+
+// Parses the optional "--dof <5|6>" arguments that follow the positional ones.
+bool parseDof(int argc, char ** argv, int first, int & dof)
+{
+  dof = 5;
+
+  if (first == argc) {
+    return true;
+  }
+
+  if (first + 2 != argc || std::string(argv[first]) != "--dof") {
+    return false;
+  }
+
+  const std::string value = argv[first + 1];
+
+  if (value != "5" && value != "6") {
+    return false;
+  }
+
+  dof = std::stoi(value);
+
+  return true;
+}
 
 void waitForEnter()
 {
@@ -56,6 +84,7 @@ void waitForEnter()
 
 bool readPosition(
   hiwonder::Follower & robot,
+  std::size_t joint_count,
   std::size_t index,
   int16_t & position)
 {
@@ -68,7 +97,7 @@ bool readPosition(
     return false;
   }
 
-  if (positions.size() != kJoints.size()) {
+  if (positions.size() != joint_count) {
     std::cerr
       << "Unexpected motor count: "
       << positions.size()
@@ -84,16 +113,17 @@ bool readPosition(
 
 bool calibrateJoint(
   hiwonder::Follower & robot,
+  const std::vector<Joint> & joints,
   std::size_t index,
   JointCalibration & calibration)
 {
-  const auto & joint = kJoints[index];
+  const auto & joint = joints[index];
 
   std::cout
     << "\nJoint "
     << index + 1
     << "/"
-    << kJoints.size()
+    << joints.size()
     << ": "
     << joint.name
     << " (servo "
@@ -109,6 +139,7 @@ bool calibrateJoint(
 
   if (!readPosition(
       robot,
+      joints.size(),
       index,
       calibration.lower_position))
   {
@@ -128,6 +159,7 @@ bool calibrateJoint(
 
   if (!readPosition(
       robot,
+      joints.size(),
       index,
       calibration.upper_position))
   {
@@ -154,6 +186,7 @@ bool calibrateJoint(
 }
 
 void printCalibration(
+  const std::vector<Joint> & joints,
   const std::vector<JointCalibration> & calibration)
 {
   std::cout
@@ -175,11 +208,11 @@ void printCalibration(
   for (std::size_t i = 0; i < calibration.size(); ++i) {
     std::cout
       << std::left
-      << std::setw(18) << kJoints[i].name
+      << std::setw(18) << joints[i].name
       << std::right
       << std::setw(10)
       << static_cast<unsigned int>(
-      kJoints[i].servo_id)
+      joints[i].servo_id)
       << std::setw(12)
       << calibration[i].lower_position
       << std::setw(12)
@@ -190,9 +223,10 @@ void printCalibration(
 
 bool saveCalibration(
   const std::string & path,
+  const std::vector<Joint> & joints,
   const std::vector<JointCalibration> & calibration)
 {
-  if (calibration.size() != kJoints.size()) {
+  if (calibration.size() != joints.size()) {
     std::cerr
       << "Calibration data does not match joint count.\n";
 
@@ -206,7 +240,7 @@ bool saveCalibration(
 
     joint["servo_id"] =
       static_cast<unsigned int>(
-      kJoints[i].servo_id);
+      joints[i].servo_id);
 
     joint["lower_position"] =
       calibration[i].lower_position;
@@ -214,7 +248,7 @@ bool saveCalibration(
     joint["upper_position"] =
       calibration[i].upper_position;
 
-    root[kJoints[i].name] = joint;
+    root[joints[i].name] = joint;
   }
 
   std::ofstream output(path);
@@ -246,17 +280,21 @@ bool saveCalibration(
 
 int main(int argc, char ** argv)
 {
-  if (argc != 3) {
+  int dof = 5;
+
+  if (argc < 3 || !parseDof(argc, argv, 3, dof)) {
     std::cerr
       << "Usage:\n"
-      << "  lerobot-calibrate <port> <calibration.yaml>\n"
+      << "  lerobot-calibrate <port> <calibration.yaml> [--dof <5|6>]\n"
       << "\n"
       << "Example:\n"
       << "  lerobot-calibrate /dev/ttyACM0 "
-      << "/app/src/so101_description/config/calibration.yaml\n";
+      << "/app/src/so101_description/config/calibration.yaml --dof 6\n";
 
     return 1;
   }
+
+  const std::vector<Joint> joints = makeJoints(dof);
 
   const std::string port = argv[1];
   const std::string calibration_path = argv[2];
@@ -266,6 +304,9 @@ int main(int argc, char ** argv)
   lerobot::RobotConfig config;
   config.port = port;
   config.baud_rate = 1000000;
+  for (const auto & joint : joints) {
+    config.motor_ids.push_back(joint.servo_id);
+  }
 
   if (!robot.configure(config)) {
     std::cerr << "Failed to configure robot\n";
@@ -310,11 +351,12 @@ int main(int argc, char ** argv)
   waitForEnter();
 
   std::vector<JointCalibration> calibration(
-    kJoints.size());
+    joints.size());
 
-  for (std::size_t i = 0; i < kJoints.size(); ++i) {
+  for (std::size_t i = 0; i < joints.size(); ++i) {
     if (!calibrateJoint(
         robot,
+        joints,
         i,
         calibration[i]))
     {
@@ -322,7 +364,7 @@ int main(int argc, char ** argv)
     }
   }
 
-  printCalibration(calibration);
+  printCalibration(joints, calibration);
 
   std::cout
     << "\nCalibration file:\n"
@@ -334,6 +376,7 @@ int main(int argc, char ** argv)
 
   if (!saveCalibration(
       calibration_path,
+      joints,
       calibration))
   {
     return 1;

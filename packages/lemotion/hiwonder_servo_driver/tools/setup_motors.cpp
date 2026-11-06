@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <array>
 #include <cstdint>
 #include <exception>
 #include <iostream>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "hiwonder_servo_driver/hiwonder_bus.hpp"
 #include "hiwonder_servo_driver/serial_port.hpp"
@@ -33,18 +33,23 @@ constexpr uint8_t kMaxServoId = 20;
 
 struct Joint
 {
-  const char * name;
+  std::string name;
   uint8_t id;
 };
 
-constexpr std::array<Joint, 6> kJoints{{
-  {"joint_1", 1},
-  {"joint_2", 2},
-  {"joint_3", 3},
-  {"joint_4", 4},
-  {"joint_5", 5},
-  {"gripper", 6},
-}};
+// Builds joint_1..joint_<dof> followed by the gripper on the next servo ID.
+std::vector<Joint> makeJoints(int dof)
+{
+  std::vector<Joint> joints;
+
+  for (int i = 1; i <= dof; ++i) {
+    joints.push_back({"joint_" + std::to_string(i), static_cast<uint8_t>(i)});
+  }
+
+  joints.push_back({"gripper", static_cast<uint8_t>(dof + 1)});
+
+  return joints;
+}
 
 std::optional<uint8_t> findSingleServo(
   hiwonder::HiwonderBus & bus)
@@ -78,15 +83,26 @@ std::optional<uint8_t> findSingleServo(
 
 int main(int argc, char ** argv)
 {
-  if (argc != 2) {
+  int dof = 5;
+
+  if (
+    (argc != 2 && argc != 4) ||
+    (argc == 4 && (std::string(argv[2]) != "--dof" ||
+    (std::string(argv[3]) != "5" && std::string(argv[3]) != "6"))))
+  {
     std::cerr
-            << "Usage: hiwonder-setup-motors <port>\n"
-            << "Example: hiwonder-setup-motors /dev/ttyACM0\n";
+            << "Usage: hiwonder-setup-motors <port> [--dof <5|6>]\n"
+            << "Example: hiwonder-setup-motors /dev/ttyACM0 --dof 6\n";
 
     return 1;
   }
 
+  if (argc == 4) {
+    dof = std::stoi(argv[3]);
+  }
+
   const std::string port = argv[1];
+  const std::vector<Joint> joints = makeJoints(dof);
 
   try {
     hiwonder::SerialPort serial(port, kBaudRate);
@@ -101,7 +117,7 @@ int main(int argc, char ** argv)
             << "IMPORTANT:\n"
             << "Connect exactly one servo at a time.\n\n";
 
-    for (const auto & joint : kJoints) {
+    for (const auto & joint : joints) {
       std::cout
                 << "Connect the motor for '" << joint.name << "'.\n"
                 << "It will be configured as ID "
@@ -163,7 +179,7 @@ int main(int argc, char ** argv)
                 << static_cast<int>(joint.id)
                 << ".\n\n";
 
-      if (&joint != &kJoints.back()) {
+      if (&joint != &joints.back()) {
         std::cout
                     << "Disconnect this motor before continuing.\n"
                     << "Press Enter after disconnecting.";
@@ -178,7 +194,7 @@ int main(int argc, char ** argv)
             << "Motor setup complete.\n"
             << "Configured IDs:\n";
 
-    for (const auto & joint : kJoints) {
+    for (const auto & joint : joints) {
       std::cout
                 << "  "
                 << static_cast<int>(joint.id)
