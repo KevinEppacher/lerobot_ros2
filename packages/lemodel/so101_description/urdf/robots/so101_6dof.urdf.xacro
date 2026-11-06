@@ -9,7 +9,7 @@
   <xacro:arg name="port" default="/dev/ttyACM0"/>
   <xacro:arg name="calibration_file" default="$(find so101_description)/config/6dof/follower_example_calibration.yaml"/>
   <xacro:arg name="prefix" default=""/>
-  <xacro:arg name="robot_plugin" default="hiwonder_lerobot_cpp/Follower"/>
+  <xacro:arg name="robot_plugin" default="hiwonder_lerobot_cpp/Robot"/>
   <!-- Instantiate macros -->
   <xacro:so101_6dof prefix="$(arg prefix)"/>
   <xacro:gripper

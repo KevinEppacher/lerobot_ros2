@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 #include "hiwonder_servo_driver/registers.hpp"
+#include "pluginlib/class_list_macros.hpp"
 
 namespace hiwonder
 {
@@ -298,3 +299,5 @@ bool LeRobot::readStates(
 }
 
 }  // namespace hiwonder
+
+PLUGINLIB_EXPORT_CLASS(hiwonder::LeRobot, lerobot::Robot)

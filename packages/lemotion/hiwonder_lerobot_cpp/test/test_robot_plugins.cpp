@@ -14,37 +14,35 @@
 
 #include <gtest/gtest.h>
 
+#include <fcntl.h>
+#include <poll.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include <array>
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <utility>
+#include <string>
+#include <thread>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include <pluginlib/class_loader.hpp>
 
-#include "hiwonder_lerobot_cpp/follower.hpp"
-#include "hiwonder_lerobot_cpp/leader.hpp"
+#include "hiwonder_lerobot_cpp/robot.hpp"
 #include "lerobot_cpp/robot.hpp"
 
-// Verify that Follower satisfies the generic Robot interface.
-TEST(RobotInterfaceTest, FollowerImplementsRobotInterface)
+// Verify that LeRobot satisfies the generic Robot interface.
+TEST(RobotInterfaceTest, LeRobotImplementsRobotInterface)
 {
   static_assert(
-    std::is_base_of_v<lerobot::Robot, hiwonder::Follower>);
+    std::is_base_of_v<lerobot::Robot, hiwonder::LeRobot>);
 
   static_assert(
-    std::is_default_constructible_v<hiwonder::Follower>);
-}
-
-// Verify that Leader satisfies the generic Robot interface.
-TEST(RobotInterfaceTest, LeaderImplementsRobotInterface)
-{
-  static_assert(
-    std::is_base_of_v<lerobot::Robot, hiwonder::Leader>);
-
-  static_assert(
-    std::is_default_constructible_v<hiwonder::Leader>);
+    std::is_default_constructible_v<hiwonder::LeRobot>);
 }
 
 // Ensure Robot instances can be safely destroyed through the base class.
@@ -75,7 +73,7 @@ protected:
   RobotLoader loader_{"lerobot_cpp", "lerobot::Robot"};
 };
 
-// Verify that pluginlib can discover and instantiate both plugins.
+// Verify that pluginlib can discover and instantiate the unified plugin.
 TEST_P(RobotPluginTest, LoadsPluginWithoutMotors)
 {
   auto robot = loader_.createUniqueInstance(GetParam());
@@ -162,16 +160,14 @@ TEST_P(RobotPluginTest, InvalidConfigurationKeepsPreviousState)
 INSTANTIATE_TEST_SUITE_P(
   Plugins,
   RobotPluginTest,
-  ::testing::Values(
-    "hiwonder_lerobot_cpp/Follower",
-    "hiwonder_lerobot_cpp/Leader"));
+  ::testing::Values("hiwonder_lerobot_cpp/Robot"));
 
 // Motor order must follow the configured IDs and must not be sorted.
 TEST(RobotConfigurationTest, PreservesMotorOrder)
 {
   const std::vector<uint8_t> ids{6, 2, 9, 1};
 
-  hiwonder::Follower robot;
+  hiwonder::LeRobot robot;
   ASSERT_TRUE(robot.configure(makeConfig(ids)));
   EXPECT_EQ(robot.motorCount(), ids.size());
   EXPECT_EQ(robot.motorIds(), ids);
@@ -181,7 +177,7 @@ TEST(RobotConfigurationTest, PreservesMotorOrder)
 // changing the configured motors.
 TEST(RobotConfigurationTest, ConnectFailureKeepsConfiguration)
 {
-  hiwonder::Leader robot;
+  hiwonder::LeRobot robot;
   ASSERT_TRUE(robot.configure(makeConfig({1, 2, 3})));
 
   EXPECT_FALSE(robot.connect());

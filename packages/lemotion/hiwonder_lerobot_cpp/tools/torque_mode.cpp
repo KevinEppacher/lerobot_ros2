@@ -23,7 +23,7 @@
 #include "hiwonder_servo_driver/serial_port.hpp"
 #include "lerobot_cpp/robot.hpp"
 
-#include "hiwonder_lerobot_cpp/follower.hpp"
+#include "hiwonder_lerobot_cpp/robot.hpp"
 
 namespace
 {
@@ -112,7 +112,7 @@ int main(int argc, char ** argv)
   }
   std::cout << '\n';
 
-  hiwonder::Follower robot;
+  hiwonder::LeRobot robot;
   lerobot::RobotConfig config;
   config.port = port;
   config.baud_rate = 1000000;

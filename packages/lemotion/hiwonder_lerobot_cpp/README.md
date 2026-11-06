@@ -2,9 +2,9 @@
 
 HiWonder backend for the generic `lerobot_cpp` robot interface.
 
-The package provides the `hiwonder_lerobot_cpp/Leader` and
-`hiwonder_lerobot_cpp/Follower` pluginlib plugins and command-line tools for
-calibrating and testing SO-101 arms. The motor IDs are not hardcoded in the
+The package provides the `hiwonder_lerobot_cpp/Robot` pluginlib plugin, used
+for both leader and follower arms, and command-line tools for calibrating and
+testing SO-101 arms. The motor IDs are not hardcoded in the
 plugins: they are passed through `lerobot::RobotConfig::motor_ids`, in order,
 and must be non-empty, unique and in the range 0-253.
 
