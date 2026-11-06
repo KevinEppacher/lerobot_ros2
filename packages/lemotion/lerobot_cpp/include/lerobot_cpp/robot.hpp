@@ -42,6 +42,9 @@ struct RobotConfig
 
   /// Serial communication baud rate.
   uint32_t baud_rate{1000000};
+
+  /// Ordered motor IDs; the number of motors is motor_ids.size().
+  std::vector<uint8_t> motor_ids;
 };
 
 /**

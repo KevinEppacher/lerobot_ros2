@@ -25,11 +25,6 @@ namespace hiwonder
 class Leader : public LeRobot
 {
 public:
-  /**
-   * @brief Constructs a leader with its predefined motor configuration.
-   */
-  Leader();
-
   ~Leader() override = default;
 };
 

@@ -25,11 +25,6 @@ namespace hiwonder
 class Follower : public LeRobot
 {
 public:
-  /**
-   * @brief Constructs a follower with its predefined motor configuration.
-   */
-  Follower();
-
   ~Follower() override = default;
 };
 

@@ -41,7 +41,11 @@ public:
   /**
    * @brief Configures the HiWonder robot backend.
    *
-   * @param config Robot configuration containing the serial port and baud rate.
+   * The configuration is rejected while connected. The motor IDs must be
+   * non-empty, unique and valid HiWonder servo IDs (0-253). Their order is
+   * preserved. An invalid configuration leaves the previous state unchanged.
+   *
+   * @param config Robot configuration containing serial settings and motor IDs.
    * @return True if the configuration is valid, otherwise false.
    */
   bool configure(
@@ -90,6 +94,16 @@ public:
    * @return Number of configured motors.
    */
   [[nodiscard]] std::size_t motorCount() const noexcept override;
+
+  /**
+   * @brief Returns the configured motor IDs in configuration order.
+   *
+   * @return Configured motor IDs.
+   */
+  [[nodiscard]] const std::vector<uint8_t> & motorIds() const noexcept
+  {
+    return motor_ids_;
+  }
 
   /**
    * @brief Enables or disables torque for all motors.
@@ -158,16 +172,8 @@ public:
   bool validatePositions(
     const std::vector<int16_t> & positions) const override;
 
-protected:
-  /**
-   * @brief Adds a motor ID to the robot configuration.
-   *
-   * @param id Servo ID of the motor.
-   */
-  void addMotor(
-    uint8_t id);
-
 private:
+  static constexpr uint8_t kMaxServoId = 253;
   static constexpr int16_t kMinCommandPosition = 0;
   static constexpr int16_t kMaxCommandPosition = 4095;
 

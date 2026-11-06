@@ -15,8 +15,11 @@
 #include <gtest/gtest.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <utility>
 #include <type_traits>
+#include <vector>
 
 #include <pluginlib/class_loader.hpp>
 
@@ -51,34 +54,138 @@ TEST(RobotInterfaceTest, RobotHasVirtualDestructor)
     std::has_virtual_destructor_v<lerobot::Robot>);
 }
 
-// Verify that pluginlib can discover and instantiate the Follower plugin.
-TEST(RobotPluginTest, LoadsFollowerPlugin)
+namespace
 {
-  pluginlib::ClassLoader<lerobot::Robot> loader(
-    "lerobot_cpp",
-    "lerobot::Robot");
 
-  auto robot =
-    loader.createUniqueInstance(
-      "hiwonder_lerobot_cpp/Follower");
+using RobotLoader = pluginlib::ClassLoader<lerobot::Robot>;
+
+lerobot::RobotConfig makeConfig(std::vector<uint8_t> ids)
+{
+  lerobot::RobotConfig config;
+  config.port = "/dev/null_lerobot_test";
+  config.motor_ids = std::move(ids);
+  return config;
+}
+
+}  // namespace
+
+class RobotPluginTest : public ::testing::TestWithParam<const char *>
+{
+protected:
+  RobotLoader loader_{"lerobot_cpp", "lerobot::Robot"};
+};
+
+// Verify that pluginlib can discover and instantiate both plugins.
+TEST_P(RobotPluginTest, LoadsPluginWithoutMotors)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
 
   ASSERT_NE(robot, nullptr);
+  EXPECT_EQ(robot->motorCount(), 0U);
+  EXPECT_FALSE(robot->isConnected());
+}
+
+TEST_P(RobotPluginTest, RejectsEmptyMotorList)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
+
+  EXPECT_FALSE(robot->configure(makeConfig({})));
+  EXPECT_EQ(robot->motorCount(), 0U);
+}
+
+TEST_P(RobotPluginTest, ConfiguresSixMotors)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
+
+  ASSERT_TRUE(robot->configure(makeConfig({1, 2, 3, 4, 5, 6})));
   EXPECT_EQ(robot->motorCount(), 6U);
   EXPECT_FALSE(robot->isConnected());
 }
 
-// Verify that pluginlib can discover and instantiate the Leader plugin.
-TEST(RobotPluginTest, LoadsLeaderPlugin)
+TEST_P(RobotPluginTest, ConfiguresSevenMotors)
 {
-  pluginlib::ClassLoader<lerobot::Robot> loader(
-    "lerobot_cpp",
-    "lerobot::Robot");
+  auto robot = loader_.createUniqueInstance(GetParam());
 
-  auto robot =
-    loader.createUniqueInstance(
-      "hiwonder_lerobot_cpp/Leader");
+  ASSERT_TRUE(robot->configure(makeConfig({1, 2, 3, 4, 5, 6, 7})));
+  EXPECT_EQ(robot->motorCount(), 7U);
+}
 
-  ASSERT_NE(robot, nullptr);
-  EXPECT_EQ(robot->motorCount(), 6U);
-  EXPECT_FALSE(robot->isConnected());
+TEST_P(RobotPluginTest, AcceptsNonConsecutiveIds)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
+
+  ASSERT_TRUE(robot->configure(makeConfig({10, 3, 200, 0, 253})));
+  EXPECT_EQ(robot->motorCount(), 5U);
+}
+
+TEST_P(RobotPluginTest, RejectsDuplicateIds)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
+
+  EXPECT_FALSE(robot->configure(makeConfig({1, 2, 3, 2})));
+  EXPECT_EQ(robot->motorCount(), 0U);
+}
+
+TEST_P(RobotPluginTest, RejectsReservedServoIds)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
+
+  EXPECT_FALSE(robot->configure(makeConfig({1, 0xFE})));
+  EXPECT_FALSE(robot->configure(makeConfig({1, 0xFF})));
+  EXPECT_EQ(robot->motorCount(), 0U);
+}
+
+TEST_P(RobotPluginTest, RepeatedConfigurationReplacesMotors)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
+
+  ASSERT_TRUE(robot->configure(makeConfig({1, 2, 3, 4, 5, 6})));
+  ASSERT_TRUE(robot->configure(makeConfig({1, 2, 3, 4, 5, 6, 7})));
+  EXPECT_EQ(robot->motorCount(), 7U);
+
+  ASSERT_TRUE(robot->configure(makeConfig({4, 5})));
+  EXPECT_EQ(robot->motorCount(), 2U);
+}
+
+TEST_P(RobotPluginTest, InvalidConfigurationKeepsPreviousState)
+{
+  auto robot = loader_.createUniqueInstance(GetParam());
+
+  ASSERT_TRUE(robot->configure(makeConfig({1, 2, 3})));
+
+  EXPECT_FALSE(robot->configure(makeConfig({})));
+  EXPECT_FALSE(robot->configure(makeConfig({7, 8, 7})));
+  EXPECT_FALSE(robot->configure(makeConfig({7, 255})));
+  EXPECT_EQ(robot->motorCount(), 3U);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+  Plugins,
+  RobotPluginTest,
+  ::testing::Values(
+    "hiwonder_lerobot_cpp/Follower",
+    "hiwonder_lerobot_cpp/Leader"));
+
+// Motor order must follow the configured IDs and must not be sorted.
+TEST(RobotConfigurationTest, PreservesMotorOrder)
+{
+  const std::vector<uint8_t> ids{6, 2, 9, 1};
+
+  hiwonder::Follower robot;
+  ASSERT_TRUE(robot.configure(makeConfig(ids)));
+  EXPECT_EQ(robot.motorCount(), ids.size());
+  EXPECT_EQ(robot.motorIds(), ids);
+}
+
+// An unreachable port must fail to connect without hardware and without
+// changing the configured motors.
+TEST(RobotConfigurationTest, ConnectFailureKeepsConfiguration)
+{
+  hiwonder::Leader robot;
+  ASSERT_TRUE(robot.configure(makeConfig({1, 2, 3})));
+
+  EXPECT_FALSE(robot.connect());
+  EXPECT_FALSE(robot.isConnected());
+  EXPECT_EQ(robot.motorCount(), 3U);
+  EXPECT_TRUE(robot.configure(makeConfig({4, 5})));
 }
