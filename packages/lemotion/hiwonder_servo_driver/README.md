@@ -143,67 +143,94 @@ source install/setup.bash
 
 ## Tools
 
-Several command-line utilities are included for configuring and testing the
-servos.
+Command-line utilities for locating, inspecting and configuring the servo bus.
+They assume the workspace is built and sourced. All tools use a baud rate of
+1000000 and scan servo IDs 1-20.
 
-### Find serial port
+For `lerobot-calibrate`, `lerobot-test-move` and `lerobot-torque-mode`, see the
+`hiwonder_lerobot_cpp` package.
+
+### `hiwonder-find-port`
+
+Finds the serial port of the servo bus by detecting which `ttyACM*` / `ttyUSB*`
+device disappears when the USB cable is unplugged.
 
 ```bash
 hiwonder-find-port
 ```
 
-Detects the serial device by asking the user to disconnect and reconnect the
-USB adapter.
+The tool takes no arguments. It lists the available ports, asks you to
+disconnect the USB cable and press Enter, and then prints the port that
+disappeared. If a `/dev/serial/by-id/` link exists for it, the persistent path
+is printed as well. It fails if no port or more than one port disappeared.
+Reconnect the cable afterwards.
+
+### `hiwonder-scan`
+
+Pings every servo ID from 1 to 20 and prints firmware version, model ID,
+configured ID, position, voltage and temperature for each servo found.
+
+```bash
+hiwonder-scan <port>
+```
+
+| Argument | Description | Default |
+|---|---|---|
+| `port` | Serial port of the servo bus | required |
 
 Example:
 
-```text
-/dev/ttyACM0
+```bash
+hiwonder-scan /dev/ttyUSB0
 ```
 
-### Scan servo bus
+The tool is read-only. It ends with `Found <n> servo(s).`
+
+### `hiwonder-setup-motors`
+
+Interactively assigns the servo IDs of an SO-101 arm, one servo at a time.
 
 ```bash
-hiwonder-scan
+hiwonder-setup-motors <port> [--dof <5|6>]
 ```
 
-Scans the bus for connected servos and reads available servo information.
+| Argument | Description | Default |
+|---|---|---|
+| `port` | Serial port of the servo bus | required |
+| `--dof <5\|6>` | Number of arm joints (the gripper is added) | `5` |
 
-### Configure motor IDs
+Examples:
 
 ```bash
-hiwonder-setup-motors
+hiwonder-setup-motors /dev/ttyUSB0
+hiwonder-setup-motors /dev/ttyUSB0 --dof 6
 ```
 
-Configures the servo IDs used by the SO-101 arm.
+ID assignment by `--dof`:
 
-The default configuration is:
+| ID | 5DOF | 6DOF |
+|---:|---|---|
+| 1 | `joint_1` | `joint_1` |
+| 2 | `joint_2` | `joint_2` |
+| 3 | `joint_3` | `joint_3` |
+| 4 | `joint_4` | `joint_4` |
+| 5 | `joint_5` | `joint_5` |
+| 6 | `gripper` | `joint_6` |
+| 7 | - | `gripper` |
 
-| ID | Joint |
-|---:|---|
-| 1 | `joint_1` |
-| 2 | `joint_2` |
-| 3 | `joint_3` |
-| 4 | `joint_4` |
-| 5 | `joint_5` |
-| 6 | `gripper` |
+Procedure, repeated for each joint in the order above:
 
-### Test servo movement
+1. Connect **only** the servo for the named joint to the bus.
+2. Press Enter. The tool pings IDs 1-20 and requires exactly one servo to
+   answer; zero or several responding servos abort the setup.
+3. If the servo already has the target ID, nothing is changed. Otherwise its ID
+   is rewritten to the target ID.
+4. The new ID is verified with a ping. A failed change or verification aborts
+   the setup.
+5. Disconnect the servo and press Enter to continue with the next joint.
 
-```bash
-hiwonder-test-move
-```
-
-Sends a small movement command to the configured servos for verifying
-communication and motor control.
-
-### Torque control
-
-```bash
-hiwonder-torque-mode
-```
-
-Used for changing the torque state of the servos.
+At the end the tool prints the configured IDs. The ID is written to the servo,
+so only run the tool with a single servo on the bus.
 
 ## C++ API
 
@@ -338,9 +365,7 @@ hiwonder_servo_driver/
 ├── tools/
 │   ├── find_port.cpp
 │   ├── scan.cpp
-│   ├── setup_motors.cpp
-│   ├── test_move.cpp
-│   └── torque_mode.cpp
+│   └── setup_motors.cpp
 ├── CMakeLists.txt
 ├── package.xml
 └── README.md
