@@ -11,14 +11,14 @@ joint_3:
   lower_position: 1124
   upper_position: 3323
 joint_4:
-  servo_id: 4
+  servo_id: 5
   lower_position: 292
   upper_position: 2551
 joint_5:
-  servo_id: 5
+  servo_id: 6
   lower_position: 1772
   upper_position: 5585
 gripper:
-  servo_id: 6
+  servo_id: 7
   lower_position: 1595
   upper_position: 2810
