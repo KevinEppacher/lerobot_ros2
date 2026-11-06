@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="so101_ros2_control" params="port calibration_file prefix robot_plugin">
+  <xacro:macro name="so101_6dof_ros2_control" params="port calibration_file prefix robot_plugin joint_prefix:=''">
     <ros2_control name="${prefix}so101" type="system">
       <hardware>
         <plugin>lerobot_ros2_control/LeRobotSystemHardware</plugin>
@@ -8,11 +8,14 @@
         <param name="port">${port}</param>
         <param name="baud_rate">1000000</param>
         <param name="calibration_file">${calibration_file}</param>
+        <xacro:if value="${joint_prefix != ''}">
+          <param name="joint_prefix">${joint_prefix}</param>
+        </xacro:if>
       </hardware>
       <joint name="joint_1">
         <command_interface name="position">
-          <param name="min">-1.91986</param>
-          <param name="max">1.91986</param>
+          <param name="min">-1.88038</param>
+          <param name="max">1.95934</param>
         </command_interface>
         <state_interface name="position"/>
         <state_interface name="velocity"/>
@@ -20,8 +23,8 @@
       </joint>
       <joint name="joint_2">
         <command_interface name="position">
-          <param name="min">-1.74533</param>
-          <param name="max">1.74533</param>
+          <param name="min">-1.74371</param>
+          <param name="max">1.74695</param>
         </command_interface>
         <state_interface name="position"/>
         <state_interface name="velocity"/>
@@ -30,13 +33,22 @@
       <joint name="joint_3">
         <command_interface name="position">
           <param name="min">-1.68948</param>
-          <param name="max">1.5707963271</param>
+          <param name="max">1.5708</param>
         </command_interface>
         <state_interface name="position"/>
         <state_interface name="velocity"/>
         <state_interface name="current"/>
       </joint>
       <joint name="joint_4">
+        <command_interface name="position">
+          <param name="min">-2.74366</param>
+          <param name="max">2.8414</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="current"/>
+      </joint>
+      <joint name="joint_5">
         <command_interface name="position">
           <param name="min">-1.65806</param>
           <param name="max">1.65806</param>
@@ -45,19 +57,10 @@
         <state_interface name="velocity"/>
         <state_interface name="current"/>
       </joint>
-      <joint name="joint_5">
-        <command_interface name="position">
-          <param name="min">-2.74385</param>
-          <param name="max">2.84121</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-        <state_interface name="current"/>
-      </joint>
       <joint name="joint_6">
         <command_interface name="position">
-          <param name="min">-2.74385</param>
-          <param name="max">2.84121</param>
+          <param name="min">-2.72874</param>
+          <param name="max">2.85631</param>
         </command_interface>
         <state_interface name="position"/>
         <state_interface name="velocity"/>
