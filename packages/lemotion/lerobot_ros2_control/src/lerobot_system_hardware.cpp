@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <memory>
@@ -30,6 +31,25 @@
 
 namespace lerobot_ros2_control
 {
+
+YAML::Node calibrationForJoint(
+  const YAML::Node & calibration,
+  const std::string & joint_name,
+  const std::string & joint_prefix)
+{
+  if (joint_name.compare(0, joint_prefix.size(), joint_prefix) != 0) {
+    throw std::invalid_argument(
+      "Joint '" + joint_name + "' does not start with joint_prefix '" + joint_prefix + "'");
+  }
+
+  const std::string key = joint_name.substr(joint_prefix.size());
+  const YAML::Node entry = calibration[key];
+  if (!entry) {
+    throw std::invalid_argument(
+      "Calibration for joint '" + joint_name + "' (key '" + key + "') is missing");
+  }
+  return entry;
+}
 
 double rawToPosition(const JointCalibration & joint, int16_t raw_position)
 {
@@ -67,6 +87,52 @@ int16_t positionToRaw(const JointCalibration & joint, double position)
     static_cast<double>(std::max(joint.lower_position, joint.upper_position));
 
   return static_cast<int16_t>(std::lround(std::clamp(raw, raw_min, raw_max)));
+}
+
+uint8_t readServoId(const YAML::Node & joint_calibration)
+{
+  const YAML::Node servo_id = joint_calibration["servo_id"];
+  if (!servo_id) {
+    throw std::invalid_argument("servo_id is missing");
+  }
+
+  int value = 0;
+  try {
+    value = servo_id.as<int>();
+  } catch (const YAML::Exception &) {
+    throw std::invalid_argument("servo_id must be an integer");
+  }
+
+  if (value < 0 || value > kMaxServoId) {
+    throw std::invalid_argument(
+      "servo_id " + std::to_string(value) + " is outside the valid range 0-" +
+      std::to_string(kMaxServoId));
+  }
+
+  return static_cast<uint8_t>(value);
+}
+
+void validateUniqueServoIds(const std::vector<JointCalibration> & joints)
+{
+  for (std::size_t i = 0; i < joints.size(); ++i) {
+    for (std::size_t j = i + 1; j < joints.size(); ++j) {
+      if (joints[i].servo_id == joints[j].servo_id) {
+        throw std::invalid_argument(
+          "Joints '" + joints[i].name + "' and '" + joints[j].name +
+          "' share servo_id " + std::to_string(joints[i].servo_id));
+      }
+    }
+  }
+}
+
+std::vector<uint8_t> servoIds(const std::vector<JointCalibration> & joints)
+{
+  std::vector<uint8_t> ids;
+  ids.reserve(joints.size());
+  for (const auto & joint : joints) {
+    ids.push_back(joint.servo_id);
+  }
+  return ids;
 }
 
 double rawToVelocity(
@@ -116,6 +182,10 @@ LeRobotSystemHardware::on_init(
     return CallbackReturn::ERROR;
   }
 
+  const auto prefix_parameter = info_.hardware_parameters.find("joint_prefix");
+  const std::string joint_prefix = prefix_parameter == info_.hardware_parameters.end() ?
+    "" : prefix_parameter->second;
+
   YAML::Node calibration;
   try {
     calibration = YAML::LoadFile(calibration_file_);
@@ -137,12 +207,14 @@ joints_.clear();
 joints_.reserve(info_.joints.size());
 
 for (const auto & joint : info_.joints) {
-    const YAML::Node calibration_joint = calibration[joint.name];
-    if (!calibration_joint) {
+    YAML::Node calibration_joint;
+    try {
+        calibration_joint = calibrationForJoint(calibration, joint.name, joint_prefix);
+    } catch (const std::exception & exception) {
         RCLCPP_ERROR(
             get_logger(),
-            "Calibration for joint '%s' is missing",
-            joint.name.c_str());
+            "Failed to look up calibration: %s",
+            exception.what());
         return CallbackReturn::ERROR;
     }
 
@@ -199,6 +271,8 @@ for (const auto & joint : info_.joints) {
     config.name = joint.name;
 
     try {
+        config.servo_id = readServoId(calibration_joint);
+
         const auto lower_position =
             calibration_joint["lower_position"].as<int>();
         const auto upper_position =
@@ -248,6 +322,13 @@ for (const auto & joint : info_.joints) {
     joints_.push_back(config);
   }
 
+  try {
+    validateUniqueServoIds(joints_);
+  } catch (const std::exception & exception) {
+    RCLCPP_ERROR(get_logger(), "Invalid servo configuration: %s", exception.what());
+    return CallbackReturn::ERROR;
+  }
+
   if (!get_node()) {
     RCLCPP_ERROR(get_logger(), "Framework-managed hardware node is not available");
     return CallbackReturn::ERROR;
@@ -275,17 +356,18 @@ LeRobotSystemHardware::on_configure(const rclcpp_lifecycle::State &)
     lerobot::RobotConfig config;
     config.port = port_;
     config.baud_rate = baud_rate_;
+    config.motor_ids = servoIds(joints_);
 
     if (!robot_->configure(config)) {
       throw std::runtime_error("failed to configure robot plugin");
     }
 
-    if (!robot_->connect()) {
-      throw std::runtime_error("failed to connect robot plugin");
-    }
-
     if (robot_->motorCount() != joints_.size()) {
       throw std::runtime_error("robot motor count does not match configured joints");
+    }
+
+    if (!robot_->connect()) {
+      throw std::runtime_error("failed to connect robot plugin");
     }
     } catch (const std::exception & exception) {
         if (robot_) {

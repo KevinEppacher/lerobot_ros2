@@ -30,6 +30,7 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "std_srvs/srv/set_bool.hpp"
+#include "yaml-cpp/yaml.h"
 
 namespace lerobot_ros2_control
 {
@@ -44,7 +45,49 @@ struct JointCalibration
     int16_t upper_position;
     double lower_limit;
     double upper_limit;
+    uint8_t servo_id{0};
 };
+
+/// Highest valid HiWonder servo ID (0xFE is broadcast, 0xFF is reserved).
+inline constexpr int kMaxServoId = 253;
+
+/**
+ * @brief Looks up a joint's calibration after removing its configured prefix.
+ *
+ * @throws std::invalid_argument If the prefix or calibration entry is missing.
+ */
+[[nodiscard]] YAML::Node calibrationForJoint(
+    const YAML::Node & calibration,
+    const std::string & joint_name,
+    const std::string & joint_prefix);
+
+/**
+ * @brief Reads and validates the servo ID of a joint calibration entry.
+ *
+ * @param joint_calibration YAML node of a single joint.
+ * @return Validated servo ID.
+ * @throws std::invalid_argument If servo_id is missing or out of range.
+ */
+[[nodiscard]] uint8_t readServoId(
+    const YAML::Node & joint_calibration);
+
+/**
+ * @brief Verifies that no two joints share the same servo ID.
+ *
+ * @param joints Joint calibrations.
+ * @throws std::invalid_argument If a servo ID is used more than once.
+ */
+void validateUniqueServoIds(
+    const std::vector<JointCalibration> & joints);
+
+/**
+ * @brief Returns the servo IDs in the order of the given joints.
+ *
+ * @param joints Joint calibrations.
+ * @return Servo IDs, one per joint.
+ */
+[[nodiscard]] std::vector<uint8_t> servoIds(
+    const std::vector<JointCalibration> & joints);
 
 /**
  * @brief Converts a raw motor position to a calibrated joint position.
