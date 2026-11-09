@@ -109,5 +109,9 @@ run_xmllint lerobot_workcell_description
 # Linter checks for lerobot_workcell_bringup
 run_xmllint lerobot_workcell_bringup
 
+# Linter checks for lerobot_control
+run_cpplint lerobot_control
+run_xmllint lerobot_control
+
 echo
 echo -e "${BOLD}${GREEN}✓ All linter checks passed${RESET}"

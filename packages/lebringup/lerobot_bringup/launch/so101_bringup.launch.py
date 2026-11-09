@@ -219,6 +219,18 @@ def generate_launch_description():
         ],
         condition=IfCondition(gui),
     )
+    
+    lerobot_control_node = Node(
+        package='lerobot_control',
+        executable='control_mode_manager',
+        namespace=namespace,
+        output='screen',
+        emulate_tty=True,
+        parameters=[{
+            'controller_manager': 'controller_manager',
+            'service_timeout': 5.0,
+        }],
+    )
 
     # ---------------------- Launch Description ------------------------------#
 
@@ -236,4 +248,5 @@ def generate_launch_description():
     ld.add_action(joint_state_broadcaster)
     ld.add_action(position_controller)
     ld.add_action(rviz)
+    ld.add_action(lerobot_control_node)
     return ld

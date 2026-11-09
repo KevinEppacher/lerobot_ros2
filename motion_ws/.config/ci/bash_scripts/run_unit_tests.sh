@@ -56,6 +56,7 @@ run_colcon_tests lerobot_cpp
 run_colcon_tests hiwonder_lerobot_cpp
 run_colcon_tests lerobot_ros2_control
 run_colcon_tests lerobot_teleop
+run_colcon_tests lerobot_control
 
 echo
 echo -e "${BOLD}${GREEN}✓ All unit checks passed${RESET}"
