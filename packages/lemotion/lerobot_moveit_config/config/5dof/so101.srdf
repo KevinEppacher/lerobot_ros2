@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot name="so101_5dof" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="prefix" default=""/>
+  <group name="manipulator">
+    <chain base_link="$(arg prefix)base_link" tip_link="$(arg prefix)tcp"/>
+  </group>
+  <group name="gripper">
+    <joint name="gripper"/>
+  </group>
+  <group_state name="home" group="manipulator">
+    <joint name="joint_1" value="0.0"/>
+    <joint name="joint_2" value="-1.70"/>
+    <joint name="joint_3" value="1.50"/>
+    <joint name="joint_4" value="1.03"/>
+    <joint name="joint_5" value="0.0"/>
+  </group_state>
+  <group_state name="zero" group="manipulator">
+    <joint name="joint_1" value="0.0"/>
+    <joint name="joint_2" value="0.0"/>
+    <joint name="joint_3" value="0.0"/>
+    <joint name="joint_4" value="0.0"/>
+    <joint name="joint_5" value="0.0"/>
+  </group_state>
+  <end_effector name="gripper" parent_link="$(arg prefix)tcp" group="gripper" parent_group="manipulator"/>
+    <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
+    <disable_collisions link1="$(arg prefix)base_link" link2="$(arg prefix)link_1" reason="Adjacent"/>
+    <disable_collisions link1="$(arg prefix)base_link" link2="$(arg prefix)link_2" reason="Never"/>
+    <disable_collisions link1="$(arg prefix)link_1" link2="$(arg prefix)link_2" reason="Adjacent"/>
+    <disable_collisions link1="$(arg prefix)link_2" link2="$(arg prefix)link_3" reason="Adjacent"/>
+    <disable_collisions link1="$(arg prefix)link_2" link2="$(arg prefix)link_5" reason="Never"/>
+    <disable_collisions link1="$(arg prefix)link_3" link2="$(arg prefix)link_4" reason="Adjacent"/>
+    <disable_collisions link1="$(arg prefix)link_3" link2="$(arg prefix)link_5" reason="Never"/>
+    <disable_collisions link1="$(arg prefix)link_3" link2="$(arg prefix)moving_jaw_so101" reason="Never"/>
+    <disable_collisions link1="$(arg prefix)link_3" link2="$(arg prefix)wrist_roll_follower_so101" reason="Never"/>
+    <disable_collisions link1="$(arg prefix)link_4" link2="$(arg prefix)link_5" reason="Adjacent"/>
+    <disable_collisions link1="$(arg prefix)link_4" link2="$(arg prefix)moving_jaw_so101" reason="Never"/>
+    <disable_collisions link1="$(arg prefix)link_4" link2="$(arg prefix)wrist_roll_follower_so101" reason="Default"/>
+    <disable_collisions link1="$(arg prefix)link_5" link2="$(arg prefix)moving_jaw_so101" reason="Never"/>
+    <disable_collisions link1="$(arg prefix)link_5" link2="$(arg prefix)wrist_roll_follower_so101" reason="Adjacent"/>
+    <disable_collisions link1="$(arg prefix)moving_jaw_so101" link2="$(arg prefix)wrist_roll_follower_so101" reason="Adjacent"/>
+</robot>
