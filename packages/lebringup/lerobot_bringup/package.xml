@@ -12,6 +12,7 @@
   <exec_depend>forward_command_controller</exec_depend>
   <exec_depend>hiwonder_lerobot_cpp</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>lerobot_ros2_control</exec_depend>

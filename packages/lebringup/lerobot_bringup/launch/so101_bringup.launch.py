@@ -208,6 +208,20 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    
+    trajectory_controllers_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        namespace=namespace,
+        arguments=[
+            "manipulator_controller",
+            "gripper_controller",
+            "--controller-manager",
+            controller_manager_path,
+            "--inactive",
+        ],
+        output="screen",
+    )
 
     rviz = Node(
         package="rviz2",
@@ -247,6 +261,7 @@ def generate_launch_description():
     ld.add_action(controller_manager)
     ld.add_action(joint_state_broadcaster)
     ld.add_action(position_controller)
+    ld.add_action(trajectory_controllers_spawner)
     ld.add_action(rviz)
     ld.add_action(lerobot_control_node)
     return ld
