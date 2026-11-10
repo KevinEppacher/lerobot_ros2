@@ -73,6 +73,16 @@ RUN sudo apt update && sudo apt install -y \
     ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
     ros-${ROS_DISTRO}-rmw-fastrtps-cpp
 
+# Install MoveIt packages for motion planning and manipulation
+RUN sudo apt update && sudo apt install -y \
+    ros-${ROS_DISTRO}-moveit \
+    ros-${ROS_DISTRO}-moveit-ros-planning \
+    ros-${ROS_DISTRO}-moveit-ros-planning-interface \
+    ros-${ROS_DISTRO}-moveit-ros-move-group \
+    ros-${ROS_DISTRO}-moveit-configs-utils \
+    ros-${ROS_DISTRO}-joint-trajectory-controller \
+    ros-${ROS_DISTRO}-moveit-ros-control-interface
+
 ########################################################
 # End Custom installations
 ########################################################

@@ -5,7 +5,7 @@ services:
   motion_container:
     image: lerobot-ros2-motion-dev:jazzy
     build:
-      context: ../motion_ws/.config/dev
+      context: ../../motion_ws/.config/dev
       dockerfile: Dockerfile
     container_name: lerobot_ros2_motion_container
     privileged: true
@@ -31,7 +31,7 @@ services:
   vision_container:
     image: lerobot-ros2-vision-dev:jazzy
     build:
-      context: ../vision_ws/.config/dev
+      context: ../../vision_ws/.config/dev
       dockerfile: Dockerfile
     container_name: lerobot_ros2_vision_container
     privileged: true
