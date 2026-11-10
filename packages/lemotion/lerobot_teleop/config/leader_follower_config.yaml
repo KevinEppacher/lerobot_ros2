@@ -4,10 +4,12 @@ leader_follower_teleop_node:
     leader:
       joint_state_topic: "/leader/joint_states"
       guiding_mode_service: "/leader/leader_so101/guiding_mode"
+      control_mode_service: "/leader/set_control_mode"
       timeout: 0.2
     follower:
       joint_state_topic: "/follower/joint_states"
       command_topic: "/follower/position_controller/commands"
+      control_mode_service: "/follower/set_control_mode"
       alignment_duration: 3.0
     low_pass_filter:
       enabled: true

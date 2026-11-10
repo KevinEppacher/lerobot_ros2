@@ -18,6 +18,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(lerobot_interfaces REQUIRED)
 
 ############################################################
 # Declare Executables
@@ -46,6 +47,7 @@ ament_target_dependencies(leader_follower_teleop
   sensor_msgs
   std_msgs
   std_srvs
+  lerobot_interfaces
 )
 
 target_compile_features(leader_follower_teleop
@@ -98,6 +100,7 @@ if(BUILD_TESTING)
     rclcpp
     rclcpp_lifecycle
     lifecycle_msgs
+    lerobot_interfaces
     sensor_msgs
     std_msgs
     std_srvs

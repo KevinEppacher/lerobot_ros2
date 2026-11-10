@@ -46,6 +46,10 @@ void LeaderFollowerTeleopTest::SetUp()
   const std::string command_topic =
     test_namespace + "/follower/position_controller/commands";
   const std::string guiding_service = test_namespace + "/leader/guiding_mode";
+  const std::string leader_mode_service =
+    test_namespace + "/leader/set_control_mode";
+  const std::string follower_mode_service =
+    test_namespace + "/follower/set_control_mode";
 
   mock_node_ =
     std::make_shared<rclcpp::Node>(
@@ -69,6 +73,8 @@ void LeaderFollowerTeleopTest::SetUp()
       rclcpp::Parameter("follower.joint_state_topic", follower_topic),
       rclcpp::Parameter("follower.command_topic", command_topic),
       rclcpp::Parameter("leader.guiding_mode_service", guiding_service),
+      rclcpp::Parameter("leader.control_mode_service", leader_mode_service),
+      rclcpp::Parameter("follower.control_mode_service", follower_mode_service),
       rclcpp::Parameter(
       "update_rate",
       100.0),
@@ -141,6 +147,23 @@ void LeaderFollowerTeleopTest::SetUp()
       response->message =
       "Mock guiding mode changed";
     });
+
+  auto mode_callback =
+    [](
+    const lerobot_interfaces::srv::SetControlMode::Request::SharedPtr,
+    lerobot_interfaces::srv::SetControlMode::Response::SharedPtr response)
+    {
+      response->success = true;
+      response->message = "Mock control mode changed";
+    };
+
+  leader_control_mode_service_ =
+    mock_node_->create_service<lerobot_interfaces::srv::SetControlMode>(
+    leader_mode_service, mode_callback);
+
+  follower_control_mode_service_ =
+    mock_node_->create_service<lerobot_interfaces::srv::SetControlMode>(
+    follower_mode_service, mode_callback);
 
   executor_.add_node(
     mock_node_);
