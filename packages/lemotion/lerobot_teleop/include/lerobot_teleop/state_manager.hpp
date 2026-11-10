@@ -31,6 +31,9 @@ public:
     /** Teleoperation is inactive. */
     kIdle,
 
+    /** Waiting for the TELEOP control mode to be activated. */
+    kWaitingForControlMode,
+
     /** Waiting for valid leader and follower joint states. */
     kWaitingForJointStates,
 

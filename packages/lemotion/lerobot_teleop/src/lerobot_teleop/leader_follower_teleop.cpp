@@ -106,12 +106,14 @@ LeaderFollowerTeleop::CallbackReturn
 LeaderFollowerTeleop::on_activate(
   const rclcpp_lifecycle::State & state)
 {
+  control_mode_request_pending_ = false;
+
   state_manager_.transitionTo(
-    StateManager::State::kWaitingForJointStates);
+    StateManager::State::kWaitingForControlMode);
 
   RCLCPP_INFO(
     get_logger(),
-    "Teleoperation activated, waiting for leader and follower joint states");
+    "Teleoperation activated, requesting TELEOP control mode");
 
   return LifecycleNode::on_activate(state);
 }
@@ -176,6 +178,10 @@ LeaderFollowerTeleop::on_cleanup(
 void LeaderFollowerTeleop::update()
 {
   switch (state_manager_.state()) {
+    case StateManager::State::kWaitingForControlMode:
+      requestTeleopControlMode();
+      break;
+
     case StateManager::State::kWaitingForJointStates:
       waitForJointStates();
       break;
@@ -376,6 +382,109 @@ void LeaderFollowerTeleop::enableGuiding()
 
   if (request_sent) {
     guiding_request_pending_ = true;
+  }
+}
+
+void LeaderFollowerTeleop::requestTeleopControlMode()
+{
+  if (control_mode_request_pending_) {
+    return;
+  }
+
+  const bool leader_ready = leader_->controlModeServiceReady();
+  const bool follower_ready = follower_->controlModeServiceReady();
+
+  if (!leader_ready || !follower_ready) {
+    RCLCPP_WARN_THROTTLE(
+          get_logger(),
+          *get_clock(),
+          2000,
+          "Waiting for control mode services (leader: %s, follower: %s)",
+          leader_ready ? "ready" : "unavailable",
+          follower_ready ? "ready" : "unavailable");
+
+    return;
+  }
+
+  control_mode_request_pending_ = true;
+  leader_control_mode_ready_ = false;
+  follower_control_mode_ready_ = false;
+
+  auto handle_response = [this](
+    bool is_leader,
+    bool success)
+    {
+      if (!state_manager_.is(
+                StateManager::State::kWaitingForControlMode))
+      {
+        return;
+      }
+
+      if (!success) {
+        RCLCPP_ERROR(
+                get_logger(),
+                "Failed to activate TELEOP mode for %s",
+                is_leader ? "leader" : "follower");
+
+        control_mode_request_pending_ = false;
+
+        state_manager_.transitionTo(
+                StateManager::State::kIdle);
+
+        return;
+      }
+
+      if (is_leader) {
+        leader_control_mode_ready_ = true;
+      } else {
+        follower_control_mode_ready_ = true;
+      }
+
+      RCLCPP_INFO(
+            get_logger(),
+            "TELEOP control mode activated for %s",
+            is_leader ? "leader" : "follower");
+
+      if (leader_control_mode_ready_ &&
+        follower_control_mode_ready_)
+      {
+        control_mode_request_pending_ = false;
+
+        state_manager_.transitionTo(
+                StateManager::State::kWaitingForJointStates);
+
+        RCLCPP_INFO(
+                get_logger(),
+                "Both robots in TELEOP mode, waiting for joint states");
+      }
+    };
+
+  const auto mode = SetControlMode::Request::TELEOP;
+
+  const bool leader_sent = leader_->setControlMode(
+        mode,
+    [handle_response](bool success)
+    {
+      handle_response(true, success);
+        });
+
+  const bool follower_sent = follower_->setControlMode(
+        mode,
+    [handle_response](bool success)
+    {
+      handle_response(false, success);
+        });
+
+  if (!leader_sent || !follower_sent) {
+    control_mode_request_pending_ = false;
+
+    RCLCPP_WARN_THROTTLE(
+            get_logger(),
+            *get_clock(),
+            2000,
+            "Waiting for leader and follower control mode services");
+
+        // Keep waiting and retry during the next update.
   }
 }
 

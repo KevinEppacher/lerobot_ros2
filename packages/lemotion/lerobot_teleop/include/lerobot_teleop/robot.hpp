@@ -17,10 +17,12 @@
 #include <chrono>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "lerobot_interfaces/srv/set_control_mode.hpp"
 
 namespace lerobot_teleop
 {
@@ -34,6 +36,9 @@ namespace lerobot_teleop
 class Robot
 {
 public:
+  using SetControlMode = lerobot_interfaces::srv::SetControlMode;
+  using ControlModeCallback = std::function<void(bool)>;
+
   /**
    * @brief Construct a robot interface.
    *
@@ -44,7 +49,8 @@ public:
    */
   Robot(
     rclcpp_lifecycle::LifecycleNode & node,
-    const std::string & joint_state_topic);
+    const std::string & joint_state_topic,
+    const std::string & control_mode_service);
 
   /**
    * @brief Destroy the robot interface.
@@ -89,8 +95,27 @@ public:
    */
   [[nodiscard]] double stateAge() const;
 
+  /**
+   * @brief Request a control mode change.
+   *
+   * @param mode Requested control mode.
+   * @param callback Called when the request completes.
+   * @return true if the request was sent, otherwise false.
+   */
+  bool setControlMode(
+    uint8_t mode,
+    ControlModeCallback callback);
+
+  /**
+   * @brief Check if the control mode service is ready.
+   *
+   * @return true if the control mode service is available, otherwise false.
+   */
+  [[nodiscard]] bool controlModeServiceReady() const;
+
 protected:
   rclcpp_lifecycle::LifecycleNode & node_;
+  rclcpp::Client<SetControlMode>::SharedPtr control_mode_client_;
 
 private:
   /**

@@ -18,12 +18,15 @@
 #include <functional>
 #include <limits>
 
+#include "sensor_msgs/msg/joint_state.hpp"
+
 namespace lerobot_teleop
 {
 
 Robot::Robot(
   rclcpp_lifecycle::LifecycleNode & node,
-  const std::string & joint_state_topic)
+  const std::string & joint_state_topic,
+  const std::string & control_mode_service)
 : node_(node)
 {
   subscription_ =
@@ -34,6 +37,9 @@ Robot::Robot(
       &Robot::jointStateCallback,
       this,
       std::placeholders::_1));
+
+  control_mode_client_ =
+    node_.create_client<SetControlMode>(control_mode_service);
 }
 
 bool Robot::stateReceived() const noexcept
@@ -109,6 +115,43 @@ void Robot::jointStateCallback(
 
   last_update_ =
     std::chrono::steady_clock::now();
+}
+
+bool Robot::setControlMode(
+  uint8_t mode,
+  ControlModeCallback callback)
+{
+  if (!control_mode_client_->service_is_ready()) {
+    RCLCPP_WARN(
+            node_.get_logger(),
+            "Control mode service is not available");
+
+    return false;
+  }
+
+  auto request = std::make_shared<SetControlMode::Request>();
+  request->mode = mode;
+
+  control_mode_client_->async_send_request(
+        request,
+    [callback = std::move(callback)](
+      rclcpp::Client<SetControlMode>::SharedFuture future)
+    {
+      try {
+        const auto response = future.get();
+        callback(response->success);
+      } catch (const std::exception &) {
+        callback(false);
+      }
+        });
+
+  return true;
+}
+
+[[nodiscard]] bool Robot::controlModeServiceReady() const
+{
+  return control_mode_client_ &&
+         control_mode_client_->service_is_ready();
 }
 
 }  // namespace lerobot_teleop

@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+#include "lerobot_interfaces/srv/set_control_mode.hpp"
 #include "lerobot_teleop/leader_follower_teleop.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
@@ -213,6 +214,14 @@ protected:
   rclcpp::Service<
     std_srvs::srv::SetBool>::SharedPtr
     guiding_service_;
+
+  rclcpp::Service<
+    lerobot_interfaces::srv::SetControlMode>::SharedPtr
+    leader_control_mode_service_;
+
+  rclcpp::Service<
+    lerobot_interfaces::srv::SetControlMode>::SharedPtr
+    follower_control_mode_service_;
 
   std::vector<std::vector<double>>
   received_commands_;

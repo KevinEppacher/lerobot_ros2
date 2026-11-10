@@ -90,6 +90,8 @@ public:
     const rclcpp_lifecycle::State & state) override;
 
 private:
+  using SetControlMode = lerobot_interfaces::srv::SetControlMode;
+
   /**
    * @brief Execute one update of the teleoperation state machine.
    */
@@ -133,6 +135,13 @@ private:
    */
   void enableGuiding();
 
+  /**
+   * @brief Request TELEOP control mode for both robots.
+   *
+   * Teleoperation starts only after both requests succeed.
+   */
+  void requestTeleopControlMode();
+
   double update_rate_{50.0};
   bool guiding_request_pending_{false};
 
@@ -143,6 +152,15 @@ private:
   StateManager state_manager_;
 
   rclcpp::TimerBase::SharedPtr update_timer_;
+
+  /** Whether a control mode request is currently pending. */
+  bool control_mode_request_pending_{false};
+
+  /** Whether the leader control mode request has succeeded. */
+  bool leader_control_mode_ready_{false};
+
+  /** Whether the follower control mode request has succeeded. */
+  bool follower_control_mode_ready_{false};
 };
 
 }  // namespace lerobot_teleop

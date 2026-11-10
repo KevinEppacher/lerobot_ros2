@@ -33,7 +33,11 @@ Follower::Follower(
     utils::declareIfNotDeclared<std::string>(
       node,
       "follower.joint_state_topic",
-      "/follower/joint_states"))
+      "/follower/joint_states"),
+    utils::declareIfNotDeclared<std::string>(
+      node,
+      "follower.control_mode_service",
+      "/follower/set_control_mode"))
 {
   command_topic_ =
     utils::declareIfNotDeclared<std::string>(

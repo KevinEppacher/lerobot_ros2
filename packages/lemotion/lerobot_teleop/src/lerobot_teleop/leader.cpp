@@ -30,7 +30,11 @@ Leader::Leader(
     utils::declareIfNotDeclared<std::string>(
       node,
       "leader.joint_state_topic",
-      "/leader/joint_states"))
+      "/leader/joint_states"),
+    utils::declareIfNotDeclared<std::string>(
+      node,
+      "leader.control_mode_service",
+      "/leader/set_control_mode"))
 {
   const auto guiding_mode_service = utils::declareIfNotDeclared<std::string>(
     node,
