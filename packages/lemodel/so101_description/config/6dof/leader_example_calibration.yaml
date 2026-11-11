@@ -1,28 +1,28 @@
 joint_1:
   servo_id: 1
-  lower_position: 388
+  lower_position: 386
   upper_position: 3092
 joint_2:
   servo_id: 2
-  lower_position: 871
-  upper_position: 3189
+  lower_position: 688
+  upper_position: 3337
 joint_3:
   servo_id: 3
-  lower_position: 1124
-  upper_position: 3323
+  lower_position: 176
+  upper_position: 2303
 joint_4:
   servo_id: 4
-  lower_position: 1772
-  upper_position: 5585
+  lower_position: 126
+  upper_position: 3944
 joint_5:
   servo_id: 5
-  lower_position: 292
-  upper_position: 2551
+  lower_position: 2649
+  upper_position: 333
 joint_6:
   servo_id: 6
-  lower_position: 1772
-  upper_position: 5585
+  lower_position: 34
+  upper_position: 3891
 gripper:
   servo_id: 7
-  lower_position: 1595
-  upper_position: 2810
+  lower_position: 1583
+  upper_position: 2832
