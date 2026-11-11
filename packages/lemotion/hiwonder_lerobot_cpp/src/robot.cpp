@@ -298,6 +298,26 @@ bool LeRobot::readStates(
   return true;
 }
 
+bool LeRobot::writePosition(uint8_t motor_id, int16_t position)
+{
+  if (!isConnected() || !isValidCommandPosition(position)) {
+    return false;
+  }
+
+  const auto it = std::find_if(
+        motors_.begin(),
+        motors_.end(),
+    [motor_id](const auto & motor) {
+      return motor->id() == motor_id;
+        });
+
+  if (it == motors_.end()) {
+    return false;
+  }
+
+  return (*it)->writePosition(position);
+}
+
 }  // namespace hiwonder
 
 PLUGINLIB_EXPORT_CLASS(hiwonder::LeRobot, lerobot::Robot)
