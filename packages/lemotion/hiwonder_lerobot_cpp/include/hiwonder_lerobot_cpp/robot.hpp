@@ -164,6 +164,18 @@ public:
     uint16_t move_speed);
 
   /**
+   * @brief Writes a raw target position to a single motor.
+   *
+   * Only the specified motor receives a position command.
+   * The target position must be within the supported range (0-4095).
+   *
+   * @param motor_id ID of the motor.
+   * @param position Target position in ticks.
+   * @return True if the command was sent successfully, otherwise false.
+   */
+  bool writePosition(uint8_t motor_id, int16_t position);
+
+  /**
    * @brief Validates whether the given raw positions are within the supported range.
    *
    * @param positions Raw positions to validate.
