@@ -239,8 +239,8 @@ protected:
     std::ofstream file(path_);
     ASSERT_TRUE(file.is_open());
     file << "gripper: {servo_id: 7, lower_position: 100, upper_position: 300}\n"
-            "joint_2: {servo_id: 2, lower_position: 100, upper_position: 300}\n"
-            "joint_1: {servo_id: 1, lower_position: 100, upper_position: 300}\n";
+      "joint_2: {servo_id: 2, lower_position: 100, upper_position: 300}\n"
+      "joint_1: {servo_id: 1, lower_position: 100, upper_position: 300}\n";
     ASSERT_TRUE(file.good());
   }
 
