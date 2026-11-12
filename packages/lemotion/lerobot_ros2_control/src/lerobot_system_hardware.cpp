@@ -321,24 +321,6 @@ LeRobotSystemHardware::on_init(
     joints_.push_back(config);
   }
 
-  RCLCPP_INFO(
-    get_logger(),
-    "Loaded calibration from: %s",
-    calibration_file_.c_str());
-  RCLCPP_INFO(get_logger(),
-      "Joint | Servo ID | Lower Position | Upper Position | Lower Limit | Upper Limit");
-  for (const auto & joint : joints_) {
-    RCLCPP_INFO(
-          get_logger(),
-          "%s | %d | %d | %d | %.6f | %.6f",
-          joint.name.c_str(),
-          joint.servo_id,
-          joint.lower_position,
-          joint.upper_position,
-          joint.lower_limit,
-          joint.upper_limit);
-  }
-
   try {
     validateUniqueServoIds(joints_);
   } catch (const std::exception & exception) {
