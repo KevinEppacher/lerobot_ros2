@@ -123,7 +123,7 @@
     </inertial>
     <!-- Part upper_arm_so101 -->
     <visual>
-      <origin xyz="-0.065085 0.012 0.0182" rpy="3.14159 0 0"/>
+      <origin xyz="-0.065085 0.012 0.0182" rpy="-3.14159 0 0"/>
       <geometry>
         <mesh filename="package://assets/upper_arm_so101.stl"/>
       </geometry>
@@ -132,14 +132,14 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.065085 0.012 0.0182" rpy="3.14159 0 0"/>
+      <origin xyz="-0.065085 0.012 0.0182" rpy="-3.14159 0 0"/>
       <geometry>
         <mesh filename="package://assets/upper_arm_so101.stl"/>
       </geometry>
     </collision>
     <!-- Part sts3215_03a_3 -->
     <visual>
-      <origin xyz="-0.11257 -0.0155 0.0188" rpy="3.14159 -0 -1.5708"/>
+      <origin xyz="-0.11257 -0.0155 0.0188" rpy="3.14159 0 -1.5708"/>
       <geometry>
         <mesh filename="package://assets/sts3215_03a.stl"/>
       </geometry>
@@ -148,7 +148,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0.11257 -0.0155 0.0188" rpy="3.14159 -0 -1.5708"/>
+      <origin xyz="-0.11257 -0.0155 0.0188" rpy="3.14159 0 -1.5708"/>
       <geometry>
         <mesh filename="package://assets/sts3215_03a.stl"/>
       </geometry>
@@ -235,7 +235,7 @@
     </collision>
     <!-- Part arm5 -->
     <visual>
-      <origin xyz="0 0.032 -0.014" rpy="-0 -1.5708 0"/>
+      <origin xyz="-0 0.032 -0.014" rpy="0 -1.5708 0"/>
       <geometry>
         <mesh filename="package://assets/arm5.stl"/>
       </geometry>
@@ -244,7 +244,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="0 0.032 -0.014" rpy="-0 -1.5708 0"/>
+      <origin xyz="-0 0.032 -0.014" rpy="0 -1.5708 0"/>
       <geometry>
         <mesh filename="package://assets/arm5.stl"/>
       </geometry>
@@ -293,13 +293,13 @@
   <!-- Link 6dof_link_6 -->
   <link name="6dof_link_6">
     <inertial>
-      <origin xyz="-0 -0 -0.00125" rpy="0 0 0"/>
+      <origin xyz="-0 0 -0.00125" rpy="0 0 0"/>
       <mass value="0.00192972"/>
-      <inertia ixx="4.9236e-08" ixy="0" ixz="0" iyy="4.9236e-08" iyz="-0" izz="9.6462e-08"/>
+      <inertia ixx="4.9236e-08" ixy="-0" ixz="-0" iyy="4.9236e-08" iyz="-0" izz="9.6462e-08"/>
     </inertial>
     <!-- Part 6dof_link_6 -->
     <visual>
-      <origin xyz="-0 -0 0" rpy="-0 -0 -0.0149135"/>
+      <origin xyz="-0 0 0" rpy="0 -0 2.82648"/>
       <geometry>
         <mesh filename="package://assets/6dof_link_6.stl"/>
       </geometry>
@@ -308,7 +308,7 @@
       </material>
     </visual>
     <collision>
-      <origin xyz="-0 -0 0" rpy="-0 -0 -0.0149135"/>
+      <origin xyz="-0 0 0" rpy="0 -0 2.82648"/>
       <geometry>
         <mesh filename="package://assets/6dof_link_6.stl"/>
       </geometry>
@@ -320,11 +320,11 @@
     <parent link="6dof_link_5"/>
     <child link="6dof_link_6"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-2.72874" upper="2.85631"/>
+    <limit effort="10" velocity="10" lower="-5.57014" upper="0.0149135"/>
   </joint>
   <!-- Joint from 6dof_link_4 to 6dof_link_5 -->
   <joint name="joint_5" type="revolute">
-    <origin xyz="-0.0001 -0.0052 -0.0840499" rpy="-0 -1.5708 0"/>
+    <origin xyz="-0.0001 -0.0052 -0.0840499" rpy="0 -1.5708 0"/>
     <parent link="6dof_link_4"/>
     <child link="6dof_link_5"/>
     <axis xyz="0 0 1"/>
@@ -336,7 +336,7 @@
     <parent link="6dof_link_3"/>
     <child link="6dof_link_4"/>
     <axis xyz="0 0 1"/>
-    <limit effort="10" velocity="10" lower="-2.74366" upper="2.8414"/>
+    <limit effort="10" velocity="10" lower="-3.14159" upper="2.70526"/>
   </joint>
   <!-- Joint from link_2 to 6dof_link_3 -->
   <joint name="joint_3" type="revolute">

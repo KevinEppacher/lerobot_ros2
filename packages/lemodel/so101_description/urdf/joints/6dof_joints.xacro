@@ -23,7 +23,7 @@
       <parent link="${prefix}link_3"/>
       <child link="${prefix}link_4"/>
       <axis xyz="0 0 1"/>
-      <limit effort="10" velocity="10" lower="-2.74366" upper="2.8414"/>
+      <limit effort="10" velocity="10" lower="-3.14159" upper="2.70526"/>
     </joint>
     <!-- Joint from link_2 to 6dof_link_3 -->
     <joint name="joint_3" type="revolute">
