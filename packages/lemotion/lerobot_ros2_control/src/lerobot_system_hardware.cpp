@@ -203,123 +203,140 @@ LeRobotSystemHardware::on_init(
     return CallbackReturn::ERROR;
   }
 
-joints_.clear();
-joints_.reserve(info_.joints.size());
+  joints_.clear();
+  joints_.reserve(info_.joints.size());
 
-for (const auto & joint : info_.joints) {
+  for (const auto & joint : info_.joints) {
     YAML::Node calibration_joint;
     try {
-        calibration_joint = calibrationForJoint(calibration, joint.name, joint_prefix);
+      calibration_joint = calibrationForJoint(calibration, joint.name, joint_prefix);
     } catch (const std::exception & exception) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Failed to look up calibration: %s",
             exception.what());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.command_interfaces.size() != 1) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Joint '%s' must have exactly one command interface",
             joint.name.c_str());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces.size() != 3) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Joint '%s' must have exactly three state interfaces (position, velocity, current)",
             joint.name.c_str());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     const auto & command_interface = joint.command_interfaces.front();
     if (command_interface.name != hardware_interface::HW_IF_POSITION) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Joint '%s' command interface must be 'position'",
             joint.name.c_str());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces.front().name != hardware_interface::HW_IF_POSITION) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Joint '%s' state interface must be 'position'",
             joint.name.c_str());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Joint '%s' state interface must be 'velocity'",
             joint.name.c_str());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (joint.state_interfaces[2].name != hardware_interface::HW_IF_CURRENT) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Joint '%s' state interface must be 'current'",
             joint.name.c_str());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     JointCalibration config;
     config.name = joint.name;
 
     try {
-        config.servo_id = readServoId(calibration_joint);
+      config.servo_id = readServoId(calibration_joint);
+      const auto lower_position =
+        calibration_joint["lower_position"].as<int>();
+      const auto upper_position =
+        calibration_joint["upper_position"].as<int>();
 
-        const auto lower_position =
-            calibration_joint["lower_position"].as<int>();
-        const auto upper_position =
-            calibration_joint["upper_position"].as<int>();
-
-        if (
-          lower_position < std::numeric_limits<int16_t>::min() ||
-          lower_position > std::numeric_limits<int16_t>::max() ||
-          upper_position < std::numeric_limits<int16_t>::min() ||
-          upper_position > std::numeric_limits<int16_t>::max())
-        {
-          throw std::runtime_error(
+      if (
+        lower_position < std::numeric_limits<int16_t>::min() ||
+        lower_position > std::numeric_limits<int16_t>::max() ||
+        upper_position < std::numeric_limits<int16_t>::min() ||
+        upper_position > std::numeric_limits<int16_t>::max())
+      {
+        throw std::runtime_error(
             "Calibration position is outside the int16_t range");
-        }
+      }
 
-        config.lower_position = static_cast<int16_t>(lower_position);
-        config.upper_position = static_cast<int16_t>(upper_position);
-        config.lower_limit = std::stod(command_interface.min);
-        config.upper_limit = std::stod(command_interface.max);
+      config.lower_position = static_cast<int16_t>(lower_position);
+      config.upper_position = static_cast<int16_t>(upper_position);
+      config.lower_limit = std::stod(command_interface.min);
+      config.upper_limit = std::stod(command_interface.max);
     } catch (const std::exception & exception) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Invalid configuration for joint '%s': %s",
             joint.name.c_str(),
             exception.what());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (config.lower_position == config.upper_position) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Calibration range for joint '%s' is zero",
             joint.name.c_str());
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     if (config.lower_limit >= config.upper_limit) {
-        RCLCPP_ERROR(
+      RCLCPP_ERROR(
             get_logger(),
             "Invalid position limits for joint '%s': %.6f >= %.6f",
             joint.name.c_str(),
             config.lower_limit,
             config.upper_limit);
-        return CallbackReturn::ERROR;
+      return CallbackReturn::ERROR;
     }
 
     joints_.push_back(config);
+  }
+
+  RCLCPP_INFO(
+    get_logger(),
+    "Loaded calibration from: %s",
+    calibration_file_.c_str());
+  RCLCPP_INFO(get_logger(),
+      "Joint | Servo ID | Lower Position | Upper Position | Lower Limit | Upper Limit");
+  for (const auto & joint : joints_) {
+    RCLCPP_INFO(
+          get_logger(),
+          "%s | %d | %d | %d | %.6f | %.6f",
+          joint.name.c_str(),
+          joint.servo_id,
+          joint.lower_position,
+          joint.upper_position,
+          joint.lower_limit,
+          joint.upper_limit);
   }
 
   try {
@@ -329,6 +346,8 @@ for (const auto & joint : info_.joints) {
     return CallbackReturn::ERROR;
   }
 
+  printJointCalibration();
+
   if (!get_node()) {
     RCLCPP_ERROR(get_logger(), "Framework-managed hardware node is not available");
     return CallbackReturn::ERROR;
@@ -337,9 +356,9 @@ for (const auto & joint : info_.joints) {
   guiding_mode_service_ =
     get_node()->create_service<std_srvs::srv::SetBool>(
       "~/guiding_mode",
-      [this](const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
-             std::shared_ptr<std_srvs::srv::SetBool::Response> response)
-      { guidingModeCallback(request, response); });
+    [this](const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
+    std::shared_ptr<std_srvs::srv::SetBool::Response> response)
+    {guidingModeCallback(request, response);});
 
   return CallbackReturn::SUCCESS;
 }
@@ -369,20 +388,20 @@ LeRobotSystemHardware::on_configure(const rclcpp_lifecycle::State &)
     if (!robot_->connect()) {
       throw std::runtime_error("failed to connect robot plugin");
     }
-    } catch (const std::exception & exception) {
-        if (robot_) {
-            robot_->disconnect();
-        }
-        robot_.reset();
-        robot_loader_.reset();
+  } catch (const std::exception & exception) {
+    if (robot_) {
+      robot_->disconnect();
+    }
+    robot_.reset();
+    robot_loader_.reset();
 
-        RCLCPP_ERROR(
+    RCLCPP_ERROR(
             get_logger(),
             "Failed to configure robot plugin '%s': %s",
             robot_plugin_.c_str(),
             exception.what());
-        return CallbackReturn::ERROR;
-    }
+    return CallbackReturn::ERROR;
+  }
 
   return CallbackReturn::SUCCESS;
 }
@@ -407,14 +426,14 @@ LeRobotSystemHardware::on_activate(const rclcpp_lifecycle::State &)
   }
 
   if (!synchronizeCommandsWithCurrentPosition()) {
-      return CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   if (!setTorqueEnabled(true)) {
-      RCLCPP_ERROR(
+    RCLCPP_ERROR(
           get_logger(),
           "Cannot activate hardware: failed to enable motor torque");
-      return CallbackReturn::ERROR;
+    return CallbackReturn::ERROR;
   }
 
   guiding_mode_requested_.store(false);
@@ -604,6 +623,36 @@ bool LeRobotSystemHardware::synchronizeCommandsWithCurrentPosition()
   }
 
   return true;
+}
+
+void LeRobotSystemHardware::printJointCalibration() const
+{
+  RCLCPP_INFO(
+        get_logger(),
+        "Loaded calibration from: %s",
+        calibration_file_.c_str());
+
+  RCLCPP_INFO(
+        get_logger(),
+        "%-12s | %8s | %10s | %10s | %12s | %12s",
+        "Joint",
+        "Servo ID",
+        "Lower Pos",
+        "Upper Pos",
+        "Lower Limit",
+        "Upper Limit");
+
+  for (const auto & joint : joints_) {
+    RCLCPP_INFO(
+            get_logger(),
+            "%-12s | %8u | %10d | %10d | %12.4f | %12.4f",
+            joint.name.c_str(),
+            static_cast<unsigned int>(joint.servo_id),
+            static_cast<int>(joint.lower_position),
+            static_cast<int>(joint.upper_position),
+            joint.lower_limit,
+            joint.upper_limit);
+  }
 }
 
 }  // namespace lerobot_ros2_control

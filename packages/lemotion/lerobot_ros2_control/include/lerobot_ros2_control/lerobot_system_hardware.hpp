@@ -40,12 +40,12 @@ namespace lerobot_ros2_control
  */
 struct JointCalibration
 {
-    std::string name;
-    int16_t lower_position;
-    int16_t upper_position;
-    double lower_limit;
-    double upper_limit;
-    uint8_t servo_id{0};
+  std::string name;
+  int16_t lower_position;
+  int16_t upper_position;
+  double lower_limit;
+  double upper_limit;
+  uint8_t servo_id{0};
 };
 
 /// Highest valid HiWonder servo ID (0xFE is broadcast, 0xFF is reserved).
@@ -57,9 +57,9 @@ inline constexpr int kMaxServoId = 253;
  * @throws std::invalid_argument If the prefix or calibration entry is missing.
  */
 [[nodiscard]] YAML::Node calibrationForJoint(
-    const YAML::Node & calibration,
-    const std::string & joint_name,
-    const std::string & joint_prefix);
+  const YAML::Node & calibration,
+  const std::string & joint_name,
+  const std::string & joint_prefix);
 
 /**
  * @brief Reads and validates the servo ID of a joint calibration entry.
@@ -69,7 +69,7 @@ inline constexpr int kMaxServoId = 253;
  * @throws std::invalid_argument If servo_id is missing or out of range.
  */
 [[nodiscard]] uint8_t readServoId(
-    const YAML::Node & joint_calibration);
+  const YAML::Node & joint_calibration);
 
 /**
  * @brief Verifies that no two joints share the same servo ID.
@@ -78,7 +78,7 @@ inline constexpr int kMaxServoId = 253;
  * @throws std::invalid_argument If a servo ID is used more than once.
  */
 void validateUniqueServoIds(
-    const std::vector<JointCalibration> & joints);
+  const std::vector<JointCalibration> & joints);
 
 /**
  * @brief Returns the servo IDs in the order of the given joints.
@@ -87,7 +87,7 @@ void validateUniqueServoIds(
  * @return Servo IDs, one per joint.
  */
 [[nodiscard]] std::vector<uint8_t> servoIds(
-    const std::vector<JointCalibration> & joints);
+  const std::vector<JointCalibration> & joints);
 
 /**
  * @brief Converts a raw motor position to a calibrated joint position.
@@ -97,8 +97,8 @@ void validateUniqueServoIds(
  * @return Joint position in radians.
  */
 [[nodiscard]] double rawToPosition(
-    const JointCalibration & joint,
-    int16_t raw_position);
+  const JointCalibration & joint,
+  int16_t raw_position);
 
 /**
  * @brief Converts a joint position to a raw motor position.
@@ -108,8 +108,8 @@ void validateUniqueServoIds(
  * @return Raw motor position.
  */
 [[nodiscard]] int16_t positionToRaw(
-    const JointCalibration & joint,
-    double position);
+  const JointCalibration & joint,
+  double position);
 
 /**
  * @brief Converts a raw motor velocity to a calibrated joint velocity.
@@ -234,6 +234,11 @@ private:
    * @return True if synchronization succeeds, otherwise false.
    */
   bool synchronizeCommandsWithCurrentPosition();
+
+  /**
+   * @brief Logs the loaded joint calibration parameters.
+   */
+  void printJointCalibration() const;
 
   std::string robot_plugin_;
   std::string port_;
