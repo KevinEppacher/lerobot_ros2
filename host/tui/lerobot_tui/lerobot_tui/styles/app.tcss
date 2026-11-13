@@ -1,0 +1,122 @@
+Screen {
+    background: $surface;
+}
+
+TabbedContent {
+    height: 1fr;
+}
+
+TabPane {
+    padding: 1 2;
+}
+
+.section-title {
+    height: 1;
+    text-style: bold;
+    color: $accent;
+}
+
+.dashboard-panel {
+    height: auto;
+    min-height: 4;
+    margin-bottom: 1;
+    padding: 0 1;
+    border: round $primary;
+}
+
+#system-summary,
+#docker-connection,
+#robot-summary,
+#service-summary {
+    height: auto;
+    padding-bottom: 0;
+}
+
+.dashboard-actions {
+    height: auto;
+    align: left middle;
+}
+
+DashboardView {
+    height: 1fr;
+}
+
+.placeholder-view {
+    padding: 2 1;
+}
+
+ServicesView {
+    height: 1fr;
+}
+
+#service-table {
+    height: 1fr;
+    min-height: 5;
+    border: round $primary;
+}
+
+#service-detail {
+    height: 3;
+    padding-left: 1;
+}
+
+#operation-feedback {
+    height: 1;
+}
+
+#operation-status {
+    height: 1;
+    width: 1fr;
+    color: $accent;
+}
+
+#operation-progress {
+    height: 1;
+    display: none;
+}
+
+#service-actions {
+    height: 3;
+}
+
+#service-actions Button {
+    width: 1fr;
+    min-width: 8;
+    height: 3;
+    margin-right: 1;
+}
+
+#view-error {
+    width: auto;
+    height: 3;
+    display: none;
+}
+
+#service-help {
+    height: 1;
+    color: $text-muted;
+}
+
+ServiceLogsScreen,
+OperationErrorScreen {
+    padding: 1 2;
+}
+
+#service-logs,
+#operation-error-details {
+    height: 1fr;
+    border: round $primary;
+    padding: 1;
+}
+
+UpdateConfirmation {
+    align: center middle;
+}
+
+#update-confirmation {
+    width: 70;
+    height: auto;
+    padding: 1 2;
+    border: round $primary;
+    background: $surface;
+}

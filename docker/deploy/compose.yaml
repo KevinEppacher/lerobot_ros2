@@ -118,6 +118,22 @@ services:
         "video_device:=/dev/video0"
       ]
 
+  so101-moveit-bringup:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    environment:
+      <<: *ros-environment
+    command:
+      [
+        "ros2",
+        "launch",
+        "lerobot_moveit_config",
+        "moveit.launch.py",
+        "dof:=${FOLLOWER_DOF:-5}",
+        "namespace:=follower",
+        "gui:=true"
+      ]
+
   lerobot-list-cameras:
     image: ghcr.io/kevineppacher/lerobot-ros2-vision:jazzy
     network_mode: host

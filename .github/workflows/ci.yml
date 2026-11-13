@@ -23,6 +23,35 @@ jobs:
       - name: Spell Check Repo
         uses: crate-ci/typos@v1.46.3
 
+  host-tui:
+    runs-on: ubuntu-24.04
+    needs: check-spelling
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install host TUI and Ruff
+        run: python -m pip install ./host/tui/lerobot_tui ruff
+
+      - name: Run Ruff
+        run: |
+          ruff check host/tui
+          ruff format --check host/tui
+
+      - name: Run host TUI tests
+        run: python -m unittest discover -s host/tui/lerobot_tui/tests -v
+
+      - name: Verify host-side imports
+        run: python -c "from lerobot_tui.app import LeRobotApp; print(LeRobotApp.TITLE)"
+
   motion-tests:
     runs-on: ubuntu-24.04
     needs: check-spelling

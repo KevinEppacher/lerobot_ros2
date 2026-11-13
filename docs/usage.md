@@ -127,3 +127,20 @@ The persistent host devices configured in `.env` are mapped to fixed device name
 | Follower | `${FOLLOWER_PORT}` | `/dev/so101_follower` |
 
 This keeps the ROS 2 configuration independent of the host-specific USB device paths.
+
+## Host setup interface
+
+The host-side setup interface can be installed without installing ROS 2:
+
+```bash
+./host/install/install.sh
+lerobot-setup
+```
+
+It manages services from `docker/deploy/compose.yaml` only and requires the
+Docker CLI, its Compose plugin, and access to the Docker daemon. Use **1–5** to
+open Dashboard, Services, Robots, WiFi, or Settings. In Services, select a row
+and use the visible buttons or **S** (start), **X** (stop), **R** (restart),
+**U** (pull/update image), or **L** (view the latest 100 log lines). Press
+**Q** to quit. Updating a running service asks before recreating its container;
+pulling an image for a stopped service leaves that service stopped.

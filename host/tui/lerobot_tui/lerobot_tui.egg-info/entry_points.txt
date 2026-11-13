@@ -1,0 +1,2 @@
+[console_scripts]
+lerobot = lerobot_tui.main:main
