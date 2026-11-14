@@ -1,0 +1,35 @@
+x-ros-environment: &ros-environment
+  RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+
+services:
+  lerobot-calibrate-leader:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${LEADER_PORT}:/dev/hiwonder
+    volumes:
+      - ./config:/config
+    command:
+      [
+        "lerobot-calibrate",
+        "/dev/hiwonder",
+        "${LEADER_CALIBRATION_FILE:-/config/calibration/${LEADER_DOF:-5}dof/leader_example_calibration.yaml}",
+        "--dof",
+        "${LEADER_DOF:-5}"
+      ]
+
+  lerobot-calibrate-follower:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${FOLLOWER_PORT}:/dev/hiwonder
+    volumes:
+      - ./config:/config
+    command:
+      [
+        "lerobot-calibrate",
+        "/dev/hiwonder",
+        "${FOLLOWER_CALIBRATION_FILE:-/config/calibration/${FOLLOWER_DOF:-5}dof/follower_example_calibration.yaml}",
+        "--dof",
+        "${FOLLOWER_DOF:-5}"
+      ]

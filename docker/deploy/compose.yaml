@@ -22,8 +22,8 @@ services:
         "follower_port:=/dev/so101_follower",
         "leader_dof:=${LEADER_DOF:-5}",
         "follower_dof:=${FOLLOWER_DOF:-5}",
-        "leader_calibration_path:=/config/calibration/${LEADER_DOF:-5}dof/leader_example_calibration.yaml",
-        "follower_calibration_path:=/config/calibration/${FOLLOWER_DOF:-5}dof/follower_example_calibration.yaml",
+        "leader_calibration_path:=${LEADER_CALIBRATION_FILE:-/config/calibration/${LEADER_DOF:-5}dof/leader_example_calibration.yaml}",
+        "follower_calibration_path:=${FOLLOWER_CALIBRATION_FILE:-/config/calibration/${FOLLOWER_DOF:-5}dof/follower_example_calibration.yaml}",
         "gui:=false"
       ]
 
@@ -45,7 +45,7 @@ services:
         "robot_type:=leader",
         "dof:=${LEADER_DOF:-5}",
         "port:=/dev/so101_leader",
-        "calibration_path:=/config/calibration/${LEADER_DOF:-5}dof/leader_example_calibration.yaml",
+        "calibration_path:=${LEADER_CALIBRATION_FILE:-/config/calibration/${LEADER_DOF:-5}dof/leader_example_calibration.yaml}",
         "gui:=false"
       ]
 
@@ -68,7 +68,7 @@ services:
         "robot_type:=follower",
         "dof:=${FOLLOWER_DOF:-5}",
         "port:=/dev/so101_follower",
-        "calibration_path:=/config/calibration/${FOLLOWER_DOF:-5}dof/follower_example_calibration.yaml",
+        "calibration_path:=${FOLLOWER_CALIBRATION_FILE:-/config/calibration/${FOLLOWER_DOF:-5}dof/follower_example_calibration.yaml}",
         "gui:=false"
       ]
 
@@ -117,173 +117,3 @@ services:
         "config_file:=follower_front_camera.yaml",
         "video_device:=/dev/video0"
       ]
-
-  so101-moveit-bringup:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    environment:
-      <<: *ros-environment
-    command:
-      [
-        "ros2",
-        "launch",
-        "lerobot_moveit_config",
-        "moveit.launch.py",
-        "dof:=${FOLLOWER_DOF:-5}",
-        "namespace:=follower",
-        "gui:=true"
-      ]
-
-  lerobot-list-cameras:
-    image: ghcr.io/kevineppacher/lerobot-ros2-vision:jazzy
-    network_mode: host
-    privileged: true
-    volumes:
-      - /dev:/dev
-    command: ["lerobot-list-cameras", "rgb"]
-
-  lerobot-teleop:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    volumes:
-      - ./config:/config:ro
-    environment:
-      <<: *ros-environment
-    command:
-      [
-        "ros2",
-        "launch",
-        "lerobot_teleop",
-        "leader_follower_teleop.launch.py"
-      ]
-
-  hiwonder-find-port:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    privileged: true
-    volumes:
-      - /dev:/dev
-    command: ["hiwonder-find-port"]
-
-  hiwonder-scan-leader:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${LEADER_PORT}:/dev/hiwonder
-    command: ["hiwonder-scan", "/dev/hiwonder"]
-
-  hiwonder-scan-follower:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${FOLLOWER_PORT}:/dev/hiwonder
-    command: ["hiwonder-scan", "/dev/hiwonder"]
-
-  hiwonder-setup-motors-leader:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${LEADER_PORT}:/dev/hiwonder
-    command: ["hiwonder-setup-motors", "/dev/hiwonder", "--dof", "${LEADER_DOF:-5}"]
-
-  hiwonder-setup-motors-follower:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${FOLLOWER_PORT}:/dev/hiwonder
-    command: ["hiwonder-setup-motors", "/dev/hiwonder", "--dof", "${FOLLOWER_DOF:-5}"]
-
-  lerobot-calibrate-leader:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${LEADER_PORT}:/dev/hiwonder
-    volumes:
-      - ./config:/config
-    command:
-      [
-        "lerobot-calibrate",
-        "/dev/hiwonder",
-        "/config/calibration/${LEADER_DOF:-5}dof/leader_example_calibration.yaml",
-        "--dof",
-        "${LEADER_DOF:-5}"
-      ]
-
-  lerobot-calibrate-follower:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${FOLLOWER_PORT}:/dev/hiwonder
-    volumes:
-      - ./config:/config
-    command:
-      [
-        "lerobot-calibrate",
-        "/dev/hiwonder",
-        "/config/calibration/${FOLLOWER_DOF:-5}dof/follower_example_calibration.yaml",
-        "--dof",
-        "${FOLLOWER_DOF:-5}"
-      ]
-
-  lerobot-test-move-leader:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${LEADER_PORT}:/dev/hiwonder
-    command: ["lerobot-test-move", "/dev/hiwonder", "--dof", "${LEADER_DOF:-5}"]
-
-  lerobot-test-move-follower:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${FOLLOWER_PORT}:/dev/hiwonder
-    command: ["lerobot-test-move", "/dev/hiwonder", "--dof", "${FOLLOWER_DOF:-5}"]
-
-  lerobot-torque-mode-leader:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${LEADER_PORT}:/dev/hiwonder
-    command:
-      [
-        "lerobot-torque-mode",
-        "/dev/hiwonder",
-        "${TORQUE_MODE:-off}"
-      ]
-
-  lerobot-torque-mode-follower:
-    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
-    network_mode: host
-    devices:
-      - ${FOLLOWER_PORT}:/dev/hiwonder
-    command:
-      [
-        "lerobot-torque-mode",
-        "/dev/hiwonder",
-        "${TORQUE_MODE:-off}"
-      ]
-
-  workstation_zenoh_bridge:
-    profiles: ["workstation"]
-    image: eclipse/zenoh-bridge-ros2dds:latest
-    network_mode: host
-    restart: unless-stopped
-    environment:
-      ROS_DISTRO: jazzy
-      CYCLONEDDS_URI: file:///config/cyclonedds/cyclonedds.xml
-    volumes:
-      - ./config:/config:ro
-    command: ["-c", "/config/zenoh/workstation.json5"]
-
-  robot_zenoh_bridge:
-    profiles: ["robot"]
-    image: eclipse/zenoh-bridge-ros2dds:latest
-    container_name: robot-zenoh-bridge-ros2dds
-    network_mode: host
-    restart: unless-stopped
-    environment:
-      ROS_DISTRO: jazzy
-      CYCLONEDDS_URI: file:///config/cyclonedds/cyclonedds.xml
-    volumes:
-      - ./config:/config:ro
-    command: ["-c", "/config/zenoh/robot.json5"]

@@ -1,0 +1,28 @@
+x-ros-environment: &ros-environment
+  RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+
+services:
+  workstation_zenoh_bridge:
+    profiles: ["workstation"]
+    image: eclipse/zenoh-bridge-ros2dds:latest
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      ROS_DISTRO: jazzy
+      CYCLONEDDS_URI: file:///config/cyclonedds/cyclonedds.xml
+    volumes:
+      - ./config:/config:ro
+    command: ["-c", "/config/zenoh/workstation.json5"]
+
+  robot_zenoh_bridge:
+    profiles: ["robot"]
+    image: eclipse/zenoh-bridge-ros2dds:latest
+    container_name: robot-zenoh-bridge-ros2dds
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      ROS_DISTRO: jazzy
+      CYCLONEDDS_URI: file:///config/cyclonedds/cyclonedds.xml
+    volumes:
+      - ./config:/config:ro
+    command: ["-c", "/config/zenoh/robot.json5"]

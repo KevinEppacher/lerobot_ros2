@@ -1,0 +1,71 @@
+x-ros-environment: &ros-environment
+  RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+
+services:
+  lerobot-list-cameras:
+    image: ghcr.io/kevineppacher/lerobot-ros2-vision:jazzy
+    network_mode: host
+    privileged: true
+    volumes:
+      - /dev:/dev
+    command: ["lerobot-list-cameras", "rgb"]
+
+  hiwonder-find-port:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    privileged: true
+    volumes:
+      - /dev:/dev
+    command: ["hiwonder-find-port"]
+
+  hiwonder-scan-leader:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${LEADER_PORT}:/dev/hiwonder
+    command: ["hiwonder-scan", "/dev/hiwonder"]
+
+  hiwonder-scan-follower:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${FOLLOWER_PORT}:/dev/hiwonder
+    command: ["hiwonder-scan", "/dev/hiwonder"]
+
+  hiwonder-setup-motors-leader:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${LEADER_PORT}:/dev/hiwonder
+    command: ["hiwonder-setup-motors", "/dev/hiwonder", "--dof", "${LEADER_DOF:-5}"]
+
+  hiwonder-setup-motors-follower:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${FOLLOWER_PORT}:/dev/hiwonder
+    command: ["hiwonder-setup-motors", "/dev/hiwonder", "--dof", "${FOLLOWER_DOF:-5}"]
+
+  lerobot-torque-mode-leader:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${LEADER_PORT}:/dev/hiwonder
+    command:
+      [
+        "lerobot-torque-mode",
+        "/dev/hiwonder",
+        "${TORQUE_MODE:-off}"
+      ]
+
+  lerobot-torque-mode-follower:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${FOLLOWER_PORT}:/dev/hiwonder
+    command:
+      [
+        "lerobot-torque-mode",
+        "/dev/hiwonder",
+        "${TORQUE_MODE:-off}"
+      ]

@@ -2,12 +2,30 @@ import os
 from pathlib import Path
 
 from textual.app import App, ComposeResult
+from textual.containers import Vertical
 from textual.widgets import Button, Footer, Header, Static, TabbedContent, TabPane
 
 from lerobot_tui.backends.docker import DockerComposeManager
 from lerobot_tui.backends.mock import MockDashboardBackend
 from lerobot_tui.widgets.dashboard_view import DashboardView
+from lerobot_tui.widgets.robot_table import ROBOT_LOGO
 from lerobot_tui.widgets.services_view import ServicesView
+
+WIFI_LOGO = r"""
+      /\    /\
+     /  \__/  \
+  .-------------.
+  |    WIFI     |
+  '-------------'
+""".strip("\n")
+
+SETTINGS_LOGO = r"""
+   .--+--.
+  /   |   \
++ -- O -- +  SETTINGS
+  \   |   /
+   '--+--'
+""".strip("\n")
 
 
 class LeRobotApp(App[None]):
@@ -34,7 +52,7 @@ class LeRobotApp(App[None]):
             self._startup_error = str(exc)
 
     def compose(self) -> ComposeResult:
-        yield Header()
+        yield Header(icon="")
         with TabbedContent(initial="dashboard", id="main-tabs"):
             yield TabPane("1 Dashboard", DashboardView(), id="dashboard")
             yield TabPane(
@@ -42,24 +60,32 @@ class LeRobotApp(App[None]):
                 ServicesView(self._docker, self._startup_error),
                 id="services",
             )
-            yield TabPane(
-                "3 Robots",
-                Static(
-                    "Robot information is unavailable until the robot interface is connected.",
-                    classes="placeholder-view",
-                ),
-                id="robots",
-            )
-            yield TabPane(
-                "4 WiFi",
-                Static("WiFi management is not available yet.", classes="placeholder-view"),
-                id="wifi",
-            )
-            yield TabPane(
-                "5 Settings",
-                Static("Settings are not available yet.", classes="placeholder-view"),
-                id="settings",
-            )
+            with TabPane("3 Robots", id="robots"):
+                with Vertical(classes="placeholder-view"):
+                    yield Static(
+                        "\n".join(ROBOT_LOGO.splitlines()[5:]),
+                        id="robots-logo",
+                        markup=False,
+                    )
+                    yield Static(
+                        "Robot information is unavailable until the robot interface is connected."
+                    )
+            with TabPane("4 WiFi", id="wifi"):
+                with Vertical(classes="placeholder-view"):
+                    yield Static(
+                        WIFI_LOGO,
+                        id="wifi-logo",
+                        markup=False,
+                    )
+                    yield Static("WiFi management is not available yet.")
+            with TabPane("5 Settings", id="settings"):
+                with Vertical(classes="placeholder-view"):
+                    yield Static(
+                        SETTINGS_LOGO,
+                        id="settings-logo",
+                        markup=False,
+                    )
+                    yield Static("Settings are not available yet.")
         yield Footer()
 
     def on_mount(self) -> None:

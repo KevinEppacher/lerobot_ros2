@@ -1,0 +1,48 @@
+x-ros-environment: &ros-environment
+  RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+
+services:
+  so101-moveit-bringup:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    environment:
+      <<: *ros-environment
+    command:
+      [
+        "ros2",
+        "launch",
+        "lerobot_moveit_config",
+        "moveit.launch.py",
+        "dof:=${FOLLOWER_DOF:-5}",
+        "namespace:=follower",
+        "gui:=true"
+      ]
+
+  lerobot-teleop:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    volumes:
+      - ./config:/config:ro
+    environment:
+      <<: *ros-environment
+    command:
+      [
+        "ros2",
+        "launch",
+        "lerobot_teleop",
+        "leader_follower_teleop.launch.py"
+      ]
+
+  lerobot-test-move-leader:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${LEADER_PORT}:/dev/hiwonder
+    command: ["lerobot-test-move", "/dev/hiwonder", "--dof", "${LEADER_DOF:-5}"]
+
+  lerobot-test-move-follower:
+    image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
+    network_mode: host
+    devices:
+      - ${FOLLOWER_PORT}:/dev/hiwonder
+    command: ["lerobot-test-move", "/dev/hiwonder", "--dof", "${FOLLOWER_DOF:-5}"]

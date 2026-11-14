@@ -41,6 +41,22 @@ DashboardView {
     height: 1fr;
 }
 
+#dashboard-logo,
+#services-logo,
+#robots-logo,
+#wifi-logo,
+#settings-logo {
+    height: auto;
+    width: 100%;
+    padding: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+}
+
+#dashboard-logo {
+    margin-bottom: 1;
+}
+
 .placeholder-view {
     padding: 2 1;
 }
@@ -49,14 +65,31 @@ ServicesView {
     height: 1fr;
 }
 
+ServicesView > #services-logo {
+    margin-left: 1;
+}
+
+#category-filters {
+    height: 1;
+    align: left middle;
+}
+
+#category-filters Button {
+    width: auto;
+    min-width: 10;
+    height: 1;
+    border: none;
+    margin-right: 1;
+}
+
 #service-table {
     height: 1fr;
-    min-height: 5;
+    min-height: 4;
     border: round $primary;
 }
 
 #service-detail {
-    height: 3;
+    height: 2;
     padding-left: 1;
 }
 
@@ -80,10 +113,18 @@ ServicesView {
 }
 
 #service-actions Button {
-    width: 1fr;
+    width: auto;
     min-width: 8;
     height: 3;
     margin-right: 1;
+}
+
+#service-actions Button.-success:hover {
+    color: #0a180e;
+}
+
+#service-actions Button:disabled {
+    text-opacity: 0.8;
 }
 
 #view-error {
@@ -102,7 +143,7 @@ OperationErrorScreen {
     padding: 1 2;
 }
 
-#service-logs,
+ServiceLogsScreen #service-logs,
 #operation-error-details {
     height: 1fr;
     border: round $primary;
@@ -113,10 +154,78 @@ UpdateConfirmation {
     align: center middle;
 }
 
+ToolConfigurationScreen,
+ToolExecutionConfirmation {
+    align: center middle;
+}
+
+#tool-configuration,
+#tool-confirmation {
+    width: 72;
+    height: auto;
+    max-height: 90%;
+    padding: 1 2;
+    border: round $primary;
+    background: $surface;
+}
+
+#tool-config-fields {
+    height: auto;
+    max-height: 65%;
+}
+
+#tool-config-error {
+    height: auto;
+    color: $error;
+    display: none;
+}
+
+#tool-configuration Input,
+#tool-configuration Select,
+#tool-configuration Button,
+#tool-confirmation Button {
+    width: 1fr;
+    margin-bottom: 1;
+}
+
+.tool-warning {
+    color: $warning;
+    margin-bottom: 1;
+}
+
+ToolOutputScreen {
+    padding: 1 2;
+}
+
+#tool-output {
+    height: 1fr;
+    border: round $primary;
+    padding: 1;
+}
+
 #update-confirmation {
     width: 70;
     height: auto;
     padding: 1 2;
     border: round $primary;
     background: $surface;
+}
+
+ServiceInfoScreen {
+    align: center middle;
+}
+
+#service-information {
+    width: 84;
+    height: 90%;
+    max-width: 96%;
+    padding: 1 2;
+    border: round $primary;
+    background: $surface;
+}
+
+#service-information-content {
+    height: 1fr;
+    border: round $primary;
+    padding: 1;
 }

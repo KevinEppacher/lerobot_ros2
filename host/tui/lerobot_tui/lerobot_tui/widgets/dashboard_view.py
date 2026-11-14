@@ -1,13 +1,28 @@
+r"""
+    __         ____        __          __  ____  ____  ________ 
+   / /   ___  / __ \____  / /_  ____  / /_/ __ \/ __ \/ ___/__ \
+  / /   / _ \/ /_/ / __ \/ __ \/ __ \/ __/ /_/ / / / /\__ \__/ /
+ / /___/  __/ _, _/ /_/ / /_/ / /_/ / /_/ _, _/ /_/ /___/ / __/ 
+/_____/\___/_/ |_|\____/_.___/\____/\__/_/ |_|\____//____/____/ 
+   / __ \____ ______/ /_  / /_  ____  ____ __________/ /        
+  / / / / __ `/ ___/ __ \/ __ \/ __ \/ __ `/ ___/ __  /         
+ / /_/ / /_/ (__  ) / / / /_/ / /_/ / /_/ / /  / /_/ /          
+/_____/\__,_/____/_/ /_/_.___/\____/\__,_/_/   \__,_/           
+"""
+
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Vertical
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.widgets import Button, Static
 
 from lerobot_tui.backends.docker import ComposeService
 from lerobot_tui.models import SystemInfo
 
+DASHBOARD_LOGO = (__doc__ or "").strip("\n")
 
-class DashboardView(Vertical):
+
+class DashboardView(VerticalScroll):
     def compose(self) -> ComposeResult:
+        yield Static(DASHBOARD_LOGO, id="dashboard-logo", markup=False)
         with Vertical(classes="dashboard-panel"):
             yield Static("SYSTEM", classes="section-title")
             yield Static("CPU: --    RAM: --", id="system-summary")
