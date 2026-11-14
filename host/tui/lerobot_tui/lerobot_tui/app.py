@@ -12,19 +12,18 @@ from lerobot_tui.widgets.robot_table import ROBOT_LOGO
 from lerobot_tui.widgets.services_view import ServicesView
 
 WIFI_LOGO = r"""
-      /\    /\
-     /  \__/  \
-  .-------------.
-  |    WIFI     |
-  '-------------'
+| |     / /  _/ ____/  _/
+| | /| / // // /_   / /  
+| |/ |/ // // __/ _/ /   
+|__/|__/___/_/   /___/   
 """.strip("\n")
 
-SETTINGS_LOGO = r"""
-   .--+--.
-  /   |   \
-+ -- O -- +  SETTINGS
-  \   |   /
-   '--+--'
+SETTINGS_LOGO = r"""   _____      __  __  _                 
+  / ___/___  / /_/ /_(_)___  ____ ______
+  \__ \/ _ \/ __/ __/ / __ \/ __ `/ ___/
+ ___/ /  __/ /_/ /_/ / / / / /_/ (__  ) 
+/____/\___/\__/\__/_/_/ /_/\__, /____/  
+                          /____/        
 """.strip("\n")
 
 
