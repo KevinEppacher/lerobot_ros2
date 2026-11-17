@@ -38,7 +38,7 @@ services:
     network_mode: host
     devices:
       - ${LEADER_PORT}:/dev/hiwonder
-    command: ["lerobot-test-move", "/dev/hiwonder", "--dof", "${LEADER_DOF:-5}"]
+    command: ["lerobot-test-move", "/dev/hiwonder", "--dof", "${LEADER_DOF:-5}","--help"]
 
   lerobot-test-move-follower:
     image: ghcr.io/kevineppacher/lerobot-ros2-motion:jazzy
