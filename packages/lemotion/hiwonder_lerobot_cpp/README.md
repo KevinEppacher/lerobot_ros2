@@ -1,171 +1,100 @@
 # hiwonder_lerobot_cpp
 
-HiWonder backend for the generic `lerobot_cpp` robot interface.
+## Overview
 
-The package provides the `hiwonder_lerobot_cpp/Robot` pluginlib plugin, used
-for both leader and follower arms, and command-line tools for calibrating and
-testing SO-101 arms. The motor IDs are not hardcoded in the
-plugins: they are passed through `lerobot::RobotConfig::motor_ids`, in order,
-and must be non-empty, unique and in the range 0-253.
+This package implements the generic `lerobot_cpp` robot interface for HiWonder
+serial bus servos. It exports the `hiwonder_lerobot_cpp/Robot` plugin for both
+SO-101 roles and provides tools for calibration, motion testing, and torque control.
 
-## Tools
+## Usage
 
-The tools assume the workspace is built and sourced:
+In a built and sourced workspace, use
+[`hiwonder-find-port`](../hiwonder_servo_driver/README.md#usage) to
+identify the adapter. Replace the example path with your adapter's persistent
+`/dev/serial/by-id/` path when available.
 
 ```bash
-colcon build --symlink-install --packages-select hiwonder_lerobot_cpp
-source install/setup.bash
+port=/dev/serial/by-id/your-adapter-id
 ```
 
-All tools use a baud rate of 1000000 and expect the servo IDs to follow the
-SO-101 convention (see `hiwonder-setup-motors` in the `hiwonder_servo_driver`
-package):
-
-| ID | 5DOF | 6DOF |
-|---:|---|---|
-| 1-5 | `joint_1` - `joint_5` | `joint_1` - `joint_5` |
-| 6 | `gripper` | `joint_6` |
-| 7 | - | `gripper` |
-
-Find the serial port with `hiwonder-find-port`. Persistent
-`/dev/serial/by-id/` paths are preferable to `/dev/ttyUSB*` names.
+**Stop other processes controlling the arm before using these tools. Support
+the arm before disabling torque. Keep the workspace clear and a hardware power
+cutoff within reach before sending targets or enabling torque.** Torque control
+over serial cannot serve as an emergency stop.
 
 ### `lerobot-calibrate`
 
-Interactively records the raw servo positions that correspond to the URDF
-lower and upper limit of every joint and writes them to a YAML file.
-
 ```bash
-lerobot-calibrate <port> <calibration.yaml> [--dof <5|6>]
+lerobot-calibrate "$port" calibration.yaml --dof 6
 ```
 
-| Argument | Description | Default |
-|---|---|---|
-| `port` | Serial port of the servo bus | required |
-| `calibration.yaml` | Output file, overwritten if it exists | required |
-| `--dof <5\|6>` | Number of arm joints (the gripper is added) | `5` |
-
-Examples:
-
-```bash
-lerobot-calibrate /dev/ttyUSB0 calibration.yaml
-lerobot-calibrate /dev/ttyUSB0 calibration.yaml --dof 6
-```
-
-Workflow:
-
-1. The tool connects to all servos (5DOF: IDs 1-6, 6DOF: IDs 1-7) and
-   **disables torque**, so the arm can be moved by hand and will not hold its
-   position.
-2. For each joint in order (`joint_1` ... `joint_N`, then `gripper`), move the
-   joint to its URDF **lower** limit and press Enter, then move it to its URDF
-   **upper** limit and press Enter.
-3. A joint whose lower and upper positions are identical aborts the
-   calibration.
-4. The recorded table is printed. Press Enter to save the file.
-
-The output contains one entry per joint, so six entries for 5DOF and seven for
-6DOF:
-
-```yaml
-joint_1:
-  servo_id: 1
-  lower_position: 618
-  upper_position: 3363
-...
-gripper:
-  servo_id: 6        # 7 for 6DOF
-  lower_position: 1867
-  upper_position: 3334
-```
-
-`lower_position` and `upper_position` may be in either order if the joint is
-mounted inverted. `lerobot_ros2_control` reads `servo_id` from this file to
-configure the motors, and the file must contain every joint of the selected
-robot. A 5DOF file cannot be used with a 6DOF robot description.
-
-Precautions:
-
-- Torque stays disabled when the tool ends or aborts. Support the arm before
-  starting, because it can fall under gravity.
-- Move joints slowly and do not force them past their mechanical stops.
-- Calibrate with the same DOF as the robot that will use the file.
+Pass the port and output YAML path. The tool disables torque and prompts for
+the raw position at each joint's URDF lower and upper limits. Move joints by
+hand without forcing their mechanical stops. The final prompt saves the YAML
+and overwrites any existing output file. Once torque is disabled, the tool
+leaves it disabled even if calibration later fails.
 
 ### `lerobot-test-move`
 
-Moves every motor by a small fixed offset to verify communication and motor
-control.
-
 ```bash
-lerobot-test-move <port> [--dof <5|6>]
+lerobot-test-move --help
 ```
 
-| Argument | Description | Default |
-|---|---|---|
-| `port` | Serial port of the servo bus | required |
-| `--dof <5\|6>` | Number of arm joints (the gripper is added) | `5` |
+Help exits before accessing the bus. For hardware use, pass the port and
+optionally `--dof`. Repeat `--motor ID:TICKS` for individual servos or use
+`--all TICKS` for a group write. Targets are absolute raw ticks by default.
+Use `--relative` for offsets from measured positions. Explicit targets must
+resolve to 0–4095 ticks. Omitting both target options writes the measured
+positions back as hold targets.
 
-Examples:
+This example sends a one-tick relative target to servo 2 on a 6-DOF arm.
+Check direction and clearance first.
 
 ```bash
-lerobot-test-move /dev/ttyUSB0
-lerobot-test-move /dev/ttyUSB0 --dof 6
+lerobot-test-move "$port" --dof 6 --relative --motor 2:1
 ```
 
-`--dof` only selects the motor IDs (5DOF: 1-6, 6DOF: 1-7). The tool reads the
-current raw position of every motor, prints `current -> target` for each, 
-and sends a single command with a **-10 degree** offset (about -114 ticks). 
-Targets below 0 are clamped to 0, so motors near the lower raw limit move 
-less than 10 degrees and the other motors can still move. The offset is not 
-configurable. If any resulting target exceeds 4095, the entire command is 
-rejected without sending any motor targets.
-
-Precautions:
-
-- The motors move at once, without regard to joint limits or collisions.
-  Keep the workspace clear and be ready to cut power.
-- Check the direction of the offset first: -10 degrees in raw servo ticks can
-  move a joint toward its mechanical limit.
-- Use the matching `--dof`, otherwise the tool fails to connect or leaves
-  a motor unmoved.
+The tool writes raw targets without checking calibrated joint limits or
+collisions. A write failure can leave earlier commands applied.
 
 ### `lerobot-torque-mode`
 
-Enables or disables torque on all connected motors.
-
 ```bash
-lerobot-torque-mode <port> <on|off>
+lerobot-torque-mode "$port" off
 ```
 
-| Argument | Description | Default |
-|---|---|---|
-| `port` | Serial port of the servo bus | required |
-| `on` | Enable torque for position control | - |
-| `off` | Disable torque for manual guiding | - |
+Pass the port and `off` to release torque or `on` to enable it. Enabling torque
+can cause motion because the tool sets no position target first. It scans IDs
+1–20 and requires responding IDs to be contiguous from 1. It accepts no DOF
+option and can miss an absent last servo. Check the reported IDs against the
+expected motor count.
 
-There is no `--dof` argument. The tool discovers the motors itself by pinging
-IDs 1-20 (the same range as `hiwonder-scan`) and prints the IDs found. It
-exits with an error if:
+## Architecture
 
-- no motor answers, or
-- the answering IDs are not contiguous from 1 (for example 1, 2, 4), which
-  indicates a missing or unresponsive motor.
+[`lerobot_cpp`](../lerobot_cpp/) defines the robot interface. This package
+implements it using the serial bus and servo operations from
+[`hiwonder_servo_driver`](../hiwonder_servo_driver/).
+[`lerobot_ros2_control`](../lerobot_ros2_control/) loads the plugin and maps
+between calibrated ROS 2 joint values and raw servo values.
 
-Examples:
+## Configuration
+
+Calibration and motion testing default to 5 DOF. Pass `--dof 6` for a 6-DOF
+arm. Both tools expect sequential IDs from 1, with the gripper at ID 6 for a
+5-DOF arm or 7 for a 6-DOF arm. See the driver's
+[ID setup](../hiwonder_servo_driver/README.md#assign-servo-ids) and
+[bus scan](../hiwonder_servo_driver/README.md#usage) instructions.
+
+For ROS 2 control, the adapter supplies the plugin's ordered IDs from the
+calibration file. The plugin accepts a nonempty list of unique IDs from 0–253.
+Use a calibration file matching the robot's hardware and control joints.
+[Calibration guide and examples](../../lemodel/so101_description/config/README.md)
+
+## Testing
+
+From the built workspace root, run the package's hardware-free plugin and
+configuration tests.
 
 ```bash
-lerobot-torque-mode /dev/ttyUSB0 off
-lerobot-torque-mode /dev/ttyUSB0 on
+colcon test --packages-select hiwonder_lerobot_cpp --return-code-on-test-failure
 ```
-
-Precautions:
-
-- Disabling torque releases the joints: the arm falls under gravity unless it
-  is supported.
-- Enabling torque makes the motors hold their current position and resist
-  motion. Keep hands clear of the arm.
-- This tool is **not a safety-rated emergency stop**. It needs a working serial
-  connection and a running host, and it does not cut motor power. Use a
-  hardware power switch for emergency situations.
-- Servos at unexpected IDs above the contiguous range are not controlled
-  and are reported as an error.
