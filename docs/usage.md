@@ -387,6 +387,12 @@ ros2 topic hz <camera_image_topic>
 
 Replace `<camera_image_topic>` with the actual published topic. For visual inspection of compressed images, use a compatible ROS 2 image viewer or decompress/republish the stream as needed.
 
+```bash
+ros2 run image_view image_view \
+    --ros-args \
+    -r image:=/follower/wrist_camera/image_raw \
+    -p image_transport:=compressed
+```
 ## 8. Start ROS 2 Robot Bringup
 
 **Compose file:** `compose.yaml`
