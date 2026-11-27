@@ -34,7 +34,7 @@ The system is designed to support both local development and distributed robotic
 - **Camera Integration:** Support for USB cameras and Intel RealSense devices for visual perception.
 - **Docker-Based Deployment:** Reproducible ROS 2 environments with Docker Compose for running individual robot components and supporting services.
 - **Prebuilt Container Images:** Motion and vision environments distributed through GitHub Container Registry (GHCR).
-- **Terminal User Interface (TUI):** Interactive management of Docker services, system monitoring, and deployment configuration.
+- **Terminal User Interface (TUI):** Interactive management of Docker services, ROS 2 graph inspection, system monitoring, and deployment configuration.
 - **Distributed Communication:** Support for communication between a workstation and a Raspberry Pi over a local network.
 - **Robot Calibration:** Configuration and calibration workflows for supported robot configurations.
 
@@ -136,6 +136,7 @@ The interface provides:
 - **Dashboard:** Monitor host CPU and memory usage, Docker connectivity, and container resource consumption.
 - **Service Management:** Start, stop, and restart individual Docker Compose services.
 - **Container Logs:** Inspect service output and troubleshoot deployment issues.
+- **ROS 2 Tools:** Discover graph entities, inspect interfaces, and monitor topic output through the host ROS 2 CLI.
 - **Configuration Management:** Access and edit deployment configuration files.
 
 <p align="center">

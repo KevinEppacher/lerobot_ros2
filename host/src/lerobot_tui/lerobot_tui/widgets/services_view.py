@@ -138,8 +138,6 @@ class ServicesView(Widget):
         self._update_actions()
         self.set_interval(5.0, self.refresh_services)
 
-        self.call_after_refresh(self.query_one(ServiceTable).focus)
-
     def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
         if event.data_table.id == "service-table":
             self._update_details()
