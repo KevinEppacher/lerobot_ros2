@@ -1,8 +1,8 @@
 # LeRobot TUI
 
 LeRobot TUI is a host-side terminal UI for the LeRobot Docker Compose
-deployment. It manages Compose services through the Docker CLI. The TUI
-does not communicate directly with ROS 2.
+deployment. It manages Compose services through the Docker CLI and inspects
+the ROS graph through the host ROS 2 CLI.
 
 ## Installation and startup
 
@@ -27,13 +27,12 @@ file when pointing the TUI at another checkout or using a wheel installation.
 
 | Keys | Action |
 | --- | --- |
-| `1`, `2`, `5` | Open Dashboard, Services, or Settings. |
-| `3`, `4` | Open the informational Robots and WiFi tabs. |
+| `1`–`6` | Open Dashboard, Services, Robots, ROS 2 Tools, WiFi, or Settings, respectively. |
 | `←` / `→`, `↑` / `↓` | In Services, change category or select a row. |
 | `s`, `x`, `r`, `l` | Start, stop, restart, or view recent logs for a long-running service. |
 | `e` | Run the selected one-shot service and view its output. |
 | `Enter`, `Backspace` | In Settings, open a directory or file, or return to the parent directory. |
-| `q` | Quit. In a log or error dialog, `q` or `Esc` closes the dialog. |
+| `q` | Quit. In an output or error dialog, `q` or `Esc` closes the dialog. |
 
 ## Docker Compose services
 
@@ -47,6 +46,27 @@ containers. Camera discovery, servo scans, and torque tools can run as one-shot
 commands. Use **Run Interactive** for calibration, serial port discovery, and
 servo ID setup. One-shot and interactive runs use `--no-deps`, so start any
 required services separately. Settings opens files in the deployment directory.
+
+## ROS 2 Tools
+
+Use `pixi run tui` from `host/` to use the installed ROS 2 Jazzy CLI.
+Discovery uses the active environment's ROS domain and DDS settings. If
+`ros2` is unavailable, the tab explains how to activate it and Docker service
+management remains available.
+
+| Category | Read-only commands |
+| --- | --- |
+| Nodes | `ros2 node list`, `ros2 node info` |
+| Topics | `ros2 topic list -t`, `ros2 topic info --verbose`, `ros2 topic echo`, `ros2 topic hz`, `ros2 interface show` |
+| Services | `ros2 service list -t`, `ros2 interface show` |
+| Actions | `ros2 action list -t`, `ros2 action info`, `ros2 interface show` |
+
+Use `←` / `→` for categories, `↑` / `↓` for rows, and `Tab` to focus
+controls such as the interface type selector for entities with multiple types.
+Use `r` to refresh, `i` for Info, `e` for Echo, `h` for Hz, and `v` for
+Interface. `Enter` on a row opens Info or, for services, Interface.
+In a stream, `p` pauses or resumes display, `c` clears visible output, and
+`Esc` or `q` closes the screen and stops the command.
 
 ## Hardware precautions
 

@@ -237,3 +237,60 @@ SettingsView {
     height: auto;
     padding: 0 1;
 }
+
+Ros2ToolsView {
+    height: 1fr;
+}
+
+#ros-graph {
+    height: 1fr;
+    min-height: 5;
+}
+
+#ros-categories {
+    width: 14;
+    height: 100%;
+    margin-right: 1;
+    border: round $primary;
+}
+
+#ros-graph > Vertical {
+    width: 1fr;
+}
+
+#ros-table {
+    height: 1fr;
+    border: round $primary;
+}
+
+#ros-type {
+    height: 3;
+    display: none;
+}
+
+#ros-graph-status,
+#ros-output-status,
+#ros-command {
+    height: auto;
+    color: $text-muted;
+}
+
+.ros-actions {
+    height: 3;
+}
+
+.ros-actions Button {
+    width: auto;
+    min-width: 6;
+    margin-right: 1;
+}
+
+Ros2CommandOutputScreen {
+    padding: 1 2;
+}
+
+#ros-output {
+    height: 1fr;
+    border: round $primary;
+    padding: 0 1;
+}

@@ -13,10 +13,12 @@ from textual.widgets import (
 )
 
 from lerobot_tui.backends.docker import DockerCompose
+from lerobot_tui.backends.ros2_cli import Ros2CliBackend
 from lerobot_tui.backends.system import SystemInfoBackend
 from lerobot_tui.models import SystemInfo
 from lerobot_tui.widgets.dashboard_view import DASHBOARD_LOGO, DashboardView
 from lerobot_tui.widgets.robot_table import ROBOT_LOGO
+from lerobot_tui.widgets.ros2_tools_view import Ros2ToolsView
 from lerobot_tui.widgets.service_table import SERVICE_LOGO, ServiceTable
 from lerobot_tui.widgets.services_view import ServicesView
 from lerobot_tui.widgets.settings_view import SettingsView
@@ -39,12 +41,14 @@ class LeRobotApp(App[None]):
         ("1", "show_dashboard", "Dashboard"),
         ("2", "show_services", "Services"),
         ("3", "show_robots", "Robots"),
-        ("4", "show_wifi", "WiFi"),
-        ("5", "show_settings", "Settings"),
+        ("4", "show_ros_tools", "ROS 2 Tools"),
+        ("5", "show_wifi", "WiFi"),
+        ("6", "show_settings", "Settings"),
     ]
 
     def __init__(self) -> None:
         super().__init__()
+        self._ros = Ros2CliBackend()
         self._docker: DockerCompose | None = None
         self._startup_error: str | None = None
 
@@ -86,7 +90,10 @@ class LeRobotApp(App[None]):
                     "Robot information is unavailable until the robot interface is connected."
                 )
 
-            with TabPane("4 WiFi", id="wifi"):
+            with TabPane("4 ROS 2 Tools", id="ros-tools"):
+                yield Ros2ToolsView(self._ros)
+
+            with TabPane("5 WiFi", id="wifi"):
                 yield Static(
                     WIFI_LOGO,
                     id="wifi-logo",
@@ -94,7 +101,7 @@ class LeRobotApp(App[None]):
                 )
                 yield Static("WiFi management is not available yet.")
 
-            with TabPane("5 Settings", id="settings"):
+            with TabPane("6 Settings", id="settings"):
                 if self._docker is not None:
                     yield SettingsView(self._docker.directory)
                 else:
@@ -142,6 +149,21 @@ class LeRobotApp(App[None]):
 
     def action_show_robots(self) -> None:
         self._switch_tab("robots")
+
+    def action_show_ros_tools(self) -> None:
+        self._switch_tab("ros-tools")
+
+    def on_tabbed_content_tab_activated(self, event: TabbedContent.TabActivated) -> None:
+        if event.tabbed_content.id != "main-tabs" or event.pane.id != event.tabbed_content.active:
+            return
+        self.query_one(Ros2ToolsView).set_active(event.pane.id == "ros-tools")
+        if event.pane.id == "services":
+            self.query_one(ServiceTable).focus()
+        elif event.pane.id == "settings" and self._docker is not None:
+            self.query_one("#settings-files", OptionList).focus()
+
+    async def on_unmount(self) -> None:
+        await self._ros.wait_for_cleanup()
 
     def action_show_wifi(self) -> None:
         self._switch_tab("wifi")
@@ -191,19 +213,6 @@ class LeRobotApp(App[None]):
 
         # Activate the requested tab.
         tabs.active = tab_id
-
-        # Focus the primary widget after the tab switch.
-        def focus_tab() -> None:
-            if tabs.active != tab_id:
-                return
-
-            if tab_id == "services":
-                self.query_one(ServiceTable).focus()
-
-            elif tab_id == "settings":
-                self.query_one("#settings-files", OptionList).focus()
-
-        self.call_after_refresh(focus_tab)
 
     @work(group="docker-stats", exclusive=True)
     async def _update_docker_stats(self) -> None:

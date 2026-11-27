@@ -27,3 +27,16 @@ class SystemInfo:
     rmw: str
     ros_distro: str
     env_file_exists: bool
+
+
+class RosGraphCategory(str, Enum):
+    NODES = "node"
+    TOPICS = "topic"
+    SERVICES = "service"
+    ACTIONS = "action"
+
+
+@dataclass(frozen=True, slots=True)
+class RosGraphEntity:
+    name: str
+    types: tuple[str, ...] = ()
