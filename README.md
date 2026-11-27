@@ -58,14 +58,12 @@ Hardware compatibility depends on the corresponding ROS 2 drivers, configuration
 
 Before installing the framework, ensure that your system meets the following requirements:
 
-- Ubuntu Linux
+- Linux (AMD64 or ARM64 for the host workspace)
 - Docker Engine
 - Docker Compose plugin
 - Git
-- Python 3
+- [Pixi](https://pixi.sh/latest/)
 - Access to the required USB devices when operating physical hardware
-
-The installation script installs the host-side dependencies required to manage the deployment environment. 
 
 > [!IMPORTANT]
 > Docker Engine and the Docker Compose plugin must be installed separately.
@@ -81,13 +79,13 @@ cd lerobot_ros2
 
 ### 2. Install Host Dependencies
 
-Run the provided installation script:
+From the repository root, install the locked host environment.
 
 ```bash
-./host/installation/install.sh
+pixi install --manifest-path host/pixi.toml --locked
 ```
 
-This prepares the host environment and installs the terminal-based management interface.
+From inside `host/`, use `pixi install --locked`.
 
 ### 3. Download Container Images
 
@@ -110,10 +108,10 @@ These images provide preconfigured environments for running the corresponding RO
 ### 4. Launch the Terminal Interface
 
 ```bash
-lerobot-setup
+pixi run --manifest-path host/pixi.toml tui
 ```
 
-The TUI provides an interactive entry point for managing the deployment environment.
+From inside `host/`, use `pixi run tui`. See the [TUI package guide](host/src/lerobot_tui/README.md) for key bindings and standalone installation.
 
 ## Quick Start
 
@@ -132,12 +130,6 @@ Detailed setup instructions are available in the [Usage Documentation](docs/usag
 ### Terminal User Interface (TUI)
 
 The framework includes a terminal-based management interface built with Python and Textual.
-
-Launch it using:
-
-```bash
-lerobot-setup
-```
 
 The interface provides:
 

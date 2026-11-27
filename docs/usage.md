@@ -464,10 +464,10 @@ leader_follower_teleop_node:
 
 ## 9. Terminal User Interface
 
-The same deployment can be managed through the LeRobot ROS2 terminal interface:
+After [installing the host environment](../README.md#2-install-host-dependencies), launch the terminal interface from the repository root.
 
 ```bash
-lerobot-setup
+pixi run --manifest-path host/pixi.toml tui
 ```
 
 The TUI provides a dashboard for host and Docker resource monitoring, service management, container logs, and access to deployment configuration files. Hardware discovery, calibration, and diagnostics remain accessible through their respective Docker Compose services.

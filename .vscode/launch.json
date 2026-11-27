@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "LeRobot TUI",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "lerobot_tui.main",
+      "python": "${workspaceFolder}/host/.pixi/envs/default/bin/python",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}

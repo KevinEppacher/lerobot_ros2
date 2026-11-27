@@ -39,12 +39,12 @@ jobs:
           python-version: "3.12"
 
       - name: Install host TUI and Ruff
-        run: python -m pip install ./host/tui/lerobot_tui ruff
+        run: python -m pip install ./host/src/lerobot_tui ruff
 
       - name: Run Ruff
         run: |
-          ruff check host/tui/lerobot_tui
-          ruff format --check host/tui/lerobot_tui
+          ruff check host/src/lerobot_tui
+          ruff format --check host/src/lerobot_tui
 
       - name: Verify host-side imports
         run: python -c "from lerobot_tui.app import LeRobotApp; print(LeRobotApp.TITLE)"

@@ -1,0 +1,19 @@
+[workspace]
+name = "lerobot-host"
+version = "0.1.0"
+description = "Host-side management and ROS 2 inspection tools"
+channels = ["conda-forge", "https://prefix.dev/robostack-jazzy"]
+platforms = ["linux-64", "linux-aarch64"]
+
+[dependencies]
+python = "3.12.*"
+ros-jazzy-ros-core = "*"
+
+[pypi-dependencies]
+lerobot-tui = { path = "./src/lerobot_tui", editable = true }
+
+[activation]
+scripts = ["activate.sh"]
+
+[tasks]
+tui = "lerobot"

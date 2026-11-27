@@ -52,7 +52,7 @@ The deployment uses separate container images for motion control and vision proc
 |---|---|---|
 | **Motion** | Robot control and motion execution | SO-101 hardware interfaces, `ros2_control`, controller managers, joint-state publication, control-mode services, teleoperation, MoveIt2 |
 | **Vision** | Camera acquisition | Wrist and front camera drivers, ROS 2 image publishers |
-| **Host** | Deployment management | Docker Engine, Docker Compose, `lerobot-setup`, USB device mappings, environment configuration |
+| **Host** | Deployment management | Docker Engine, Docker Compose, Pixi, LeRobot TUI, ROS 2 inspection tools, USB device mappings, environment configuration |
 
 The combined arm bringup service runs both namespaced robot stacks in one container. The standalone arm services can run them in separate containers. Teleoperation, MoveIt 2, and each camera have their own Compose services. The `usb_cam` nodes publish under `/follower/wrist_camera` and `/follower/front_camera`. Hardware bringup runs on the host with the corresponding serial or video devices attached.
 
@@ -87,7 +87,7 @@ flowchart LR
 
 The ROS 2 bringup and motion services use host networking and default to `rmw_cyclonedds_cpp`. Direct DDS communication requires compatible ROS 2 settings and network connectivity that supports DDS discovery and traffic.
 
-`compose.infrastructure.yaml` also provides optional `zenoh-bridge-ros2dds` services under the `robot` and `workstation` profiles. They bridge ROS 2 DDS traffic over Zenoh. The robot bridge listens on TCP port `7447`, and the workstation config requires replacing the endpoint placeholder with the robot host address. The bridge services load the supplied loopback-only Cyclone DDS configuration. The regular ROS 2 services do not load that configuration through Compose.
+`compose.infrastructure.yaml` also provides optional `zenoh-bridge-ros2dds` services under the `robot` and `workstation` profiles. They bridge ROS 2 DDS traffic over Zenoh. The robot bridge listens on TCP port `7447`, and the workstation config requires replacing the endpoint placeholder with the robot host address. The bridge services mount and load the supplied loopback-only Cyclone DDS configuration. Although `.env.example` lists a relative `CYCLONEDDS_URI`, the regular ROS 2 services only pass through `RMW_IMPLEMENTATION` for middleware selection.
 
 The deployment MoveIt service requests RViz with `gui:=true`. The deployment file leaves display forwarding to the host configuration.
 
@@ -227,15 +227,15 @@ The trajectory controllers expose these `FollowJointTrajectory` actions under th
 | Controller management | Control-mode service | MoveIt `Ros2ControlManager` |
 | Command interface | Position command topic | `FollowJointTrajectory` actions |
 
-## 8. Deployment Management: lerobot-setup
+## 8. Deployment Management with the LeRobot TUI
 
-`lerobot-setup` is a host-side terminal user interface for managing the Docker deployment.
+`lerobot` is a host-side terminal user interface for managing the Docker deployment.
 
 It invokes the Docker Compose CLI and displays local host and container information. Robot nodes handle motion and ROS 2 communication.
 
 ```mermaid
 flowchart LR
-    User["User"] --> TUI["lerobot-setup"]
+    User["User"] --> TUI["LeRobot TUI"]
 
     TUI --> Compose["Docker Compose"]
 
