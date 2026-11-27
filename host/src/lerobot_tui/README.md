@@ -1,27 +1,27 @@
-# LeRobot Setup
+# LeRobot TUI
 
-LeRobot Setup is a host-side terminal UI for the LeRobot Docker Compose
+LeRobot TUI is a host-side terminal UI for the LeRobot Docker Compose
 deployment. It manages Compose services through the Docker CLI. The TUI
 does not communicate directly with ROS 2.
 
 ## Installation and startup
 
-Use an APT-based Linux host with `sudo` and Python 3.10 or newer. For service
-management, install Docker and its Compose plugin and make sure your user can
-access the running Docker engine. Configure device mappings in
+Follow the [repository installation guide](../../../README.md#installation)
+for the preferred Pixi workflow. Docker Engine and its Compose plugin are
+required for service management. Configure device mappings in
 `docker/deploy/.env` using the [deployment guide](../../../docs/usage.md).
+File editing in Settings requires `nano`.
 
-From the repository root, run:
+For a standalone installation into an existing Python 3.10 or newer
+environment, run these commands from the repository root.
 
 ```bash
-./host/installation/install.sh
-lerobot-setup
+pip install -e host/src/lerobot_tui
+lerobot
 ```
 
-The installer creates a private virtual environment and installs the TUI in
-editable mode. The launcher uses this checkout's deployment files from any
-working directory. Keep the checkout in place and include `~/.local/bin` on
-your `PATH`. File editing in Settings requires `nano`.
+Set `LEROBOT_COMPOSE_FILE` to the absolute path of a deployment Compose
+file when pointing the TUI at another checkout or using a wheel installation.
 
 ## Navigation
 

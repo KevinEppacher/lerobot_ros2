@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lerobot-tui"
+version = "0.1.0"
+description = "Terminal user interface for LeRobot ROS 2"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = [
+    "textual>=0.80.0",
+    "psutil>=5.9.0",
+]
+
+[project.scripts]
+lerobot = "lerobot_tui.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lerobot_tui*"]
+
+[tool.setuptools.package-data]
+lerobot_tui = ["styles/*.tcss"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
